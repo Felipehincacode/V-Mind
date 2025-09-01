@@ -69,8 +69,9 @@ class ApiService {
 
             // Manejar errores de red
             if (!response.ok) {
-                if (response.status === 401 && this.authToken) {
-                    // Solo intentar refresh si ya tenemos un token (no para login)
+                // Solo intentar refresh si es un 401 y ya tenemos un token (no para login/register)
+                if (response.status === 401 && this.authToken && 
+                    !endpoint.includes('/login') && !endpoint.includes('/register')) {
                     const refreshed = await this.refreshAuthToken();
                     if (refreshed) {
                         // Reintentar la petición original

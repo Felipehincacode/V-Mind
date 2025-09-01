@@ -43,13 +43,21 @@ const register = async (req, res) => {
       email,
       username,
       phone,
-      passwords,
+      passwords: password, // Mapear password a passwords para la base de datos
       objetive,
       preferred_language: preferred_language || 'es'
     };
 
     const newUser = await User.create(userData);
     const token = generateToken(newUser.userId);
+    const refreshToken = require('crypto').randomBytes(64).toString('hex');
+
+    // Save refresh token to database
+    const { pool } = require('../config/database');
+    await pool.execute(
+      'UPDATE users SET refresh_token = ? WHERE user_id = ?',
+      [refreshToken, newUser.userId]
+    );
 
     res.status(201).json({
       success: true,
@@ -61,7 +69,8 @@ const register = async (req, res) => {
           email: newUser.email,
           rol: newUser.rol
         },
-        token
+        token,
+        refreshToken
       }
     });
 
@@ -108,8 +117,16 @@ const login = async (req, res) => {
     // Update last connection
     await User.updateLastConnection(user.user_id);
 
-    // Generate token
+    // Generate token and refresh token
     const token = generateToken(user.user_id);
+    const refreshToken = require('crypto').randomBytes(64).toString('hex');
+
+    // Save refresh token to database
+    const { pool } = require('../config/database');
+    await pool.execute(
+      'UPDATE users SET refresh_token = ? WHERE user_id = ?',
+      [refreshToken, user.user_id]
+    );
 
     res.json({
       success: true,
@@ -123,7 +140,8 @@ const login = async (req, res) => {
           current_level: user.current_level,
           objetive: user.objetive
         },
-        token
+        token,
+        refreshToken
       }
     });
 
@@ -227,9 +245,101 @@ const updateProfile = async (req, res) => {
   }
 };
 
+const refreshToken = async (req, res) => {
+  try {
+    const { refreshToken } = req.body;
+
+    if (!refreshToken) {
+      return res.status(400).json({
+        success: false,
+        message: 'Refresh token is required'
+      });
+    }
+
+    // Verificar si el refresh token existe en la base de datos
+    const { pool } = require('../config/database');
+    const [rows] = await pool.execute(
+      'SELECT user_id, user_name, email, rol FROM users WHERE refresh_token = ?',
+      [refreshToken]
+    );
+
+    if (rows.length === 0) {
+      return res.status(401).json({
+        success: false,
+        message: 'Invalid refresh token'
+      });
+    }
+
+    const user = rows[0];
+
+    // Generar nuevo token y refresh token
+    const newToken = generateToken(user.user_id);
+    const newRefreshToken = require('crypto').randomBytes(64).toString('hex');
+
+    // Actualizar el refresh token en la base de datos
+    await pool.execute(
+      'UPDATE users SET refresh_token = ? WHERE user_id = ?',
+      [newRefreshToken, user.user_id]
+    );
+
+    res.json({
+      success: true,
+      message: 'Token refreshed successfully',
+      data: {
+        token: newToken,
+        refreshToken: newRefreshToken,
+        user: {
+          user_id: user.user_id,
+          user_name: user.user_name,
+          email: user.email,
+          rol: user.rol
+        }
+      }
+    });
+
+  } catch (error) {
+    console.error('Refresh token error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error refreshing token',
+      error: error.message
+    });
+  }
+};
+
+const logout = async (req, res) => {
+  try {
+    const { refreshToken } = req.body;
+
+    if (refreshToken) {
+      // Limpiar el refresh token de la base de datos
+      const { pool } = require('../config/database');
+      await pool.execute(
+        'UPDATE users SET refresh_token = NULL WHERE refresh_token = ?',
+        [refreshToken]
+      );
+    }
+
+    res.json({
+      success: true,
+      message: 'Logout successful'
+    });
+
+  } catch (error) {
+    console.error('Logout error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error during logout',
+      error: error.message
+    });
+  }
+};
+
 module.exports = {
   register,
   login,
   getProfile,
-  updateProfile
+  updateProfile,
+  refreshToken,
+  logout
 };

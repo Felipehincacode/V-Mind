@@ -8,13 +8,14 @@ class User {
     const hashedPassword = await bcrypt.hash(userData.passwords, 10);
     
     const query = `
-      INSERT INTO users (user_id, user_name, email, phone, passwords, rol, objetive, preferred_language)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+      INSERT INTO users (user_id, user_name, username, email, phone, passwords, rol, objetive, preferred_language)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
     `;
     
     const values = [
       userId,
       userData.user_name,
+      userData.username,
       userData.email,
       userData.phone || null,
       hashedPassword,

@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vmind - Tu Copiloto de Aprendizaje con IA</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Fondo espacial con Canvas -->
+    <div class="stars-bg">
+        <canvas id="space"></canvas>
+    </div>
+
+    <!-- Navbar Flotante -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-logo">
+                <span class="logo-text">Vmind</span>
+            </div>
+            <div class="nav-actions">
+                <a href="login.html" class="nav-button" id="loginBtn">
+                    <span class="button-text">Iniciar sesión</span>
+                </a>
+                <a href="register.html" class="nav-button primary" id="registerBtn">
+                    <span class="button-text">Registrarte</span>
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Indicadores de Navegación -->
+    <div class="scroll-indicators">
+        <div class="scroll-dot active" data-section="0"></div>
+        <div class="scroll-dot" data-section="1"></div>
+        <div class="scroll-dot" data-section="2"></div>
+        <div class="scroll-dot" data-section="3"></div>
+        <div class="scroll-dot" data-section="4"></div>
+        <div class="scroll-dot" data-section="5"></div>
+    </div>
+
+    <!-- Sección 1: El Viaje Comienza -->
+    <section id="intro" class="section intro-section">
+        <div class="container">
+            <div class="intro-content">
+                <div class="intro-text">
+                    <h1 class="main-title">
+                        ¿Listo para Despegar hacia tus <span class="highlight">Propias Metas</span>?
+                    </h1>
+                    <p class="main-subtitle">
+                        En un universo de ruido y distracciones, a veces lo más difícil es simplemente empezar. 
+                        Traza tu propio camino.
+                    </p>
+                </div>
+                
+                <button class="cta-button primary" id="exploreBtn">
+                    <span class="button-text">Inicia la Exploración</span>
+                    <div class="button-glow"></div>
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Sección 2: La Batalla por tu Atención -->
+    <section id="problem" class="section problem-section">
+        <div class="container">
+            <div class="problem-content">
+                <h2 class="section-title">Tu Propósito vs. El Ruido</h2>
+                <p class="section-text">
+                    El mundo está diseñado para consumir tu atención, para drenar tu dopamina y para dejarte abrumado. 
+                    Mantener el enfoque en lo que realmente importa se ha convertido en una batalla diaria.
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Sección 3: Ciencia y Juego a tu Servicio -->
+    <section id="solution" class="section solution-section">
+        <div class="container">
+            <div class="solution-content">
+                <h2 class="section-title">
+                    La <span class="highlight">Gamificación</span> es la Clave.
+                </h2>
+                <p class="section-text">
+                    No es un truco. La <strong>gamificación</strong> está científicamente comprobada como un método para aumentar la motivación, 
+                    el enfoque y la retención del conocimiento. Vmind te ayuda a hackear tu propio cerebro.
+                </p>
+                
+                <div class="features-grid">
+                    <div class="feature-card">
+                        <div class="feature-icon">🎯</div>
+                        <h3>Objetivos Claros</h3>
+                        <p>Divide tu aprendizaje en pasos alcanzables y celebra cada victoria.</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">⭐</div>
+                        <h3>Sistema de Recompensas</h3>
+                        <p>Gana XP, desbloquea logros y mantén tu motivación alta.</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">📊</div>
+                        <h3>Progreso Visual</h3>
+                        <p>Ve tu crecimiento con métricas claras y gráficos motivadores.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Sección 4: Cómo Funciona -->
+    <section id="how-it-works" class="section how-it-works-section">
+        <div class="container">
+            <div class="how-it-works-content">
+                <h2 class="section-title">Tu Viaje de Aprendizaje</h2>
+                <div class="steps-container">
+                    <div class="step">
+                        <div class="step-number">1</div>
+                        <div class="step-content">
+                            <h3>Define tu Meta</h3>
+                            <p>Elige qué quieres aprender y establece objetivos realistas.</p>
+                        </div>
+                    </div>
+                    <div class="step">
+                        <div class="step-number">2</div>
+                        <div class="step-content">
+                            <h3>Sigue tu Roadmap</h3>
+                            <p>Navega por un camino estructurado diseñado por expertos.</p>
+                        </div>
+                    </div>
+                    <div class="step">
+                        <div class="step-number">3</div>
+                        <div class="step-content">
+                            <h3>Completa Tareas</h3>
+                            <p>Practica con ejercicios interactivos y proyectos reales.</p>
+                        </div>
+                    </div>
+                    <div class="step">
+                        <div class="step-number">4</div>
+                        <div class="step-content">
+                            <h3>Celebra tu Progreso</h3>
+                            <p>Gana recompensas y desbloquea nuevos niveles.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Sección 5: Tecnologías y Lenguajes -->
+    <section id="technologies" class="section technologies-section">
+        <div class="container">
+            <div class="technologies-content">
+                <h2 class="section-title">Domina las Tecnologías del Futuro</h2>
+                <div class="tech-grid">
+                    <div class="tech-card">
+                        <div class="tech-icon">🐍</div>
+                        <h3>Python</h3>
+                        <p>Desde fundamentos hasta IA y machine learning.</p>
+                    </div>
+                    <div class="tech-card">
+                        <div class="tech-icon">🌐</div>
+                        <h3>Desarrollo Web</h3>
+                        <p>HTML, CSS, JavaScript y frameworks modernos.</p>
+                    </div>
+                    <div class="tech-card">
+                        <div class="tech-icon">📱</div>
+                        <h3>Desarrollo Móvil</h3>
+                        <p>Apps nativas y multiplataforma.</p>
+                    </div>
+                    <div class="tech-card">
+                        <div class="tech-icon">🤖</div>
+                        <h3>Inteligencia Artificial</h3>
+                        <p>Machine learning, deep learning y NLP.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Sección 6: Call to Action -->
+    <section id="cta" class="section cta-section">
+        <div class="container">
+            <div class="cta-content">
+                <h2 class="section-title">¿Listo para Transformar tu Aprendizaje?</h2>
+                <p class="section-text">
+                    Únete a miles de estudiantes que ya están transformando su forma de aprender. 
+                    El futuro del aprendizaje está aquí.
+                </p>
+                <div class="cta-buttons">
+                    <a href="register.html" class="cta-button primary">
+                        <span class="button-text">Comenzar Ahora</span>
+                        <div class="button-glow"></div>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3>Vmind</h3>
+                    <p>Transformando el aprendizaje a través de la gamificación y la IA.</p>
+                </div>
+                <div class="footer-section">
+                    <h4>Enlaces</h4>
+                    <ul>
+                        <li><a href="#intro">Inicio</a></li>
+                        <li><a href="#how-it-works">Cómo Funciona</a></li>
+                        <li><a href="login.html">Iniciar Sesión</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>Contacto</h4>
+                    <p>¿Tienes preguntas? Contáctanos.</p>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2024 Vmind. Todos los derechos reservados.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="js/main.js"></script>
+    <script src="js/space-background.js"></script>
+</body>
+</html>
