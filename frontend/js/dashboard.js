@@ -1,5 +1,8 @@
 // ===== DASHBOARD CON NAVEGACIÓN POR SCROLL STICKY =====
 
+import { apiService, ApiError } from './services/api.js';
+import { getConfig } from './config.js';
+
 class Dashboard {
     constructor() {
         this.currentSection = 'home';
@@ -13,6 +16,9 @@ class Dashboard {
         ];
         this.notes = [];
         this.resources = [];
+        this.roadmaps = [];
+        this.userData = null;
+        this.userStats = null;
         this.charts = {};
         this.quillEditor = null;
         this.resourceQuillEditor = null;
@@ -24,12 +30,18 @@ class Dashboard {
         this.dragStartY = 0;
         this.dragStartScrollLeft = 0;
         
+        // Variable para rastrear tareas marcadas en la sesión actual del modal
+        this.tasksMarkedInCurrentSession = 0;
+        
+        // Contador para el easter egg (después de 5 warnings)
+        this.warningCount = 0;
+        
         // Datos del roadmap de Python con tareas
         this.pythonRoadmap = {
             fundamentals: {
                 name: "Fundamentos de Python",
                 description: "Los cimientos de tu viaje de programación",
-                status: "completed",
+                status: "unlocked",
                 tasks: [
                     { id: 1, title: "Crear tu primer programa 'Hola Mundo'", description: "Escribe y ejecuta tu primer código Python", xp: 50, completed: false },
                     { id: 2, title: "Aprender sobre variables", description: "Entiende cómo crear y usar variables", xp: 75, completed: false },
@@ -47,7 +59,7 @@ class Dashboard {
             "control-flow": {
                 name: "Control de Flujo",
                 description: "Aprende a controlar el flujo de tu programa",
-                status: "in-progress",
+                status: "locked",
                 tasks: [
                     { id: 1, title: "Usar condicionales if/else", description: "Aprende a tomar decisiones en tu código", xp: 100, completed: false },
                     { id: 2, title: "Implementar bucles for", description: "Repite acciones con bucles", xp: 125, completed: false },
@@ -221,6 +233,7 @@ class Dashboard {
         this.loadResources();
         this.setupQuillEditor();
         this.setupResourceQuillEditor();
+        this.loadRoadmapProgress();
         this.renderRoadmap();
         this.setupDragAndDrop();
         
@@ -230,52 +243,132 @@ class Dashboard {
         }, 500);
     }
 
-    loadUserData() {
-        const userData = localStorage.getItem('userData');
-        if (!userData) {
-            window.location.href = 'login.html';
-            return;
-        }
-
+    async loadUserData() {
         try {
-            const parsedUserData = JSON.parse(userData);
-            const user = TestUsers.getUserById(parsedUserData.id);
-            
-            if (user) {
-                this.userData = user;
+            // Verificar si hay token
+            const token = apiService.getAuthToken();
+            if (!token) {
+                window.location.href = 'login.html';
+                return;
+            }
+
+            // Cargar datos del usuario desde la API
+            const profileResponse = await apiService.getProfile();
+            if (profileResponse.success) {
+                this.userData = profileResponse.data.user;
+                
+                // Cargar estadísticas del usuario
+                await this.loadUserStats();
+                
+                // Cargar datos adicionales
+                await this.loadDashboardData();
+                
                 this.updateUserInterface();
             } else {
-                window.location.href = 'login.html';
+                throw new Error('Error cargando perfil de usuario');
             }
         } catch (error) {
             console.error('Error loading user data:', error);
-            window.location.href = 'login.html';
+            if (error instanceof ApiError && error.isAuthError()) {
+                // Token expirado o inválido
+                apiService.removeAuthToken();
+                window.location.href = 'login.html';
+            } else {
+                this.showError('Error cargando datos del usuario');
+            }
+        }
+    }
+
+    async loadUserStats() {
+        try {
+            const statsResponse = await apiService.getUserStats();
+            if (statsResponse.success) {
+                this.userStats = statsResponse.data;
+            }
+        } catch (error) {
+            console.error('Error loading user stats:', error);
+        }
+    }
+
+    async loadDashboardData() {
+        try {
+            // Cargar roadmaps del usuario
+            const roadmapsResponse = await apiService.getUserRoadmaps();
+            if (roadmapsResponse.success) {
+                this.roadmaps = roadmapsResponse.data;
+            }
+
+            // Cargar notas del usuario
+            const notesResponse = await apiService.getNotes();
+            if (notesResponse.success) {
+                this.notes = notesResponse.data;
+            }
+
+            // Cargar recursos del usuario
+            const resourcesResponse = await apiService.getResources();
+            if (resourcesResponse.success) {
+                this.resources = resourcesResponse.data;
+            }
+        } catch (error) {
+            console.error('Error loading dashboard data:', error);
         }
     }
 
     updateUserInterface() {
+        if (!this.userData) return;
+
         // Actualizar sidebar
-        document.getElementById('sidebarUserName').textContent = this.userData.name;
+        document.getElementById('sidebarUserName').textContent = this.userData.user_name || 'Usuario';
         document.getElementById('sidebarAvatar').src = 'assets/ui_elements/avatar.png';
-        document.getElementById('sidebarXPFill').style.width = `${(this.userData.points / 2000) * 100}%`;
-        document.getElementById('sidebarXP').textContent = this.userData.points.toLocaleString();
-        document.getElementById('sidebarXPNext').textContent = '2,000';
+        
+        // Actualizar XP si hay estadísticas
+        if (this.userStats) {
+            const currentXP = this.userStats.user.current_level || 0;
+            const nextLevelXP = this.getNextLevelXP(currentXP);
+            const progressPercentage = ((currentXP % 1000) / 1000) * 100;
+            
+            document.getElementById('sidebarXPFill').style.width = `${progressPercentage}%`;
+            document.getElementById('sidebarXP').textContent = currentXP.toLocaleString();
+            document.getElementById('sidebarXPNext').textContent = nextLevelXP.toLocaleString();
+        }
 
         // Actualizar home
-        document.getElementById('userName').textContent = this.userData.name;
+        document.getElementById('userName').textContent = this.userData.user_name || 'Usuario';
         
         // Actualizar cita inspiradora
         const randomQuote = this.quotes[Math.floor(Math.random() * this.quotes.length)];
         document.getElementById('quoteText').textContent = randomQuote.text;
         document.getElementById('quoteAuthor').textContent = `- ${randomQuote.author}`;
 
-        // Actualizar streak
-        this.updateStreakDisplay();
+        // Actualizar streak si hay estadísticas
+        if (this.userStats) {
+            this.updateStreakDisplay();
+        }
+
+        // Renderizar roadmaps si están disponibles
+        if (this.roadmaps.length > 0) {
+            this.renderRoadmaps();
+        }
+
+        // Renderizar notas si están disponibles
+        if (this.notes.length > 0) {
+            this.renderNotes();
+        }
+
+        // Renderizar recursos si están disponibles
+        if (this.resources.length > 0) {
+            this.renderResources();
+        }
+    }
+
+    getNextLevelXP(currentXP) {
+        const level = Math.floor(currentXP / 1000) + 1;
+        return level * 1000;
     }
 
     updateStreakDisplay() {
         const streakDays = document.querySelectorAll('.streak-day-mini');
-        const currentStreak = this.userData.streak;
+        const currentStreak = this.userStats?.streak?.current_streak_days || 0;
         
         streakDays.forEach((day, index) => {
             if (index < currentStreak) {
@@ -584,7 +677,7 @@ class Dashboard {
             `;
             
             planetCard.addEventListener('click', () => {
-                if (planetData.status !== 'locked') {
+                if (planetData.status === 'unlocked' || planetData.status === 'completed') {
                     this.openPlanetModal(planetId);
                 }
             });
@@ -628,7 +721,7 @@ class Dashboard {
     getStatusIcon(status) {
         switch (status) {
             case 'completed': return '✓';
-            case 'in-progress': return '⟳';
+            case 'unlocked': return '🔓';
             case 'locked': return '🔒';
             default: return '⏳';
         }
@@ -637,11 +730,11 @@ class Dashboard {
     updateRoadmapProgress() {
         const planetOrder = ['fundamentals', 'control-flow', 'data-structures', 'functions', 'oop', 'modules', 'exceptions', 'file-io', 'web', 'data-science'];
         const completedPlanets = planetOrder.filter(planetId => this.pythonRoadmap[planetId].status === 'completed').length;
-        const inProgressPlanets = planetOrder.filter(planetId => this.pythonRoadmap[planetId].status === 'in-progress').length;
-        const progressPercentage = ((completedPlanets + inProgressPlanets * 0.5) / planetOrder.length) * 100;
+        const unlockedPlanets = planetOrder.filter(planetId => this.pythonRoadmap[planetId].status === 'unlocked').length;
+        const progressPercentage = ((completedPlanets + unlockedPlanets * 0.3) / planetOrder.length) * 100;
         
         document.getElementById('roadmapProgress').style.width = `${progressPercentage}%`;
-        document.getElementById('progressText').textContent = `${completedPlanets} completados, ${inProgressPlanets} en progreso de ${planetOrder.length} planetas`;
+        document.getElementById('progressText').textContent = `${completedPlanets} completados, ${unlockedPlanets} desbloqueados de ${planetOrder.length} planetas`;
     }
 
     updateSliderControls() {
@@ -842,7 +935,11 @@ class Dashboard {
     }
 
     loadNotes() {
-        const savedNotes = localStorage.getItem('userNotes');
+        // Crear una clave única para las notas del usuario actual
+        const userId = this.userData?.user_id || 'anonymous';
+        const notesKey = `userNotes_${userId}`;
+        
+        const savedNotes = localStorage.getItem(notesKey);
         this.notes = savedNotes ? JSON.parse(savedNotes) : [
             {
                 id: 1,
@@ -874,6 +971,25 @@ class Dashboard {
             });
             notesGrid.appendChild(noteCard);
         });
+    }
+
+    loadRoadmapProgress() {
+        // Cargar progreso guardado del roadmap
+        const savedProgress = localStorage.getItem('pythonRoadmap');
+        if (savedProgress) {
+            try {
+                const progress = JSON.parse(savedProgress);
+                // Fusionar el progreso guardado con el roadmap por defecto
+                Object.keys(progress).forEach(planetId => {
+                    if (this.pythonRoadmap[planetId]) {
+                        this.pythonRoadmap[planetId].status = progress[planetId].status;
+                        this.pythonRoadmap[planetId].tasks = progress[planetId].tasks;
+                    }
+                });
+            } catch (error) {
+                console.error('Error loading roadmap progress:', error);
+            }
+        }
     }
 
     loadResources() {
@@ -961,6 +1077,15 @@ class Dashboard {
         const planetIndex = planetOrder.indexOf(planetId);
         image.src = `assets/ui_elements/planeta${(planetIndex % 4) + 1}.png`;
 
+        // Resetear contador de tareas marcadas en esta sesión
+        this.tasksMarkedInCurrentSession = 0;
+        
+        // Ocultar warning al abrir el modal
+        const warning = document.getElementById('easterEggWarning');
+        warning.style.display = 'none';
+        
+        // NOTA: No se resetea this.warningCount para mantener el conteo del easter egg
+
         // Renderizar tareas
         const completedCount = planetData.tasks.filter(task => task.completed).length;
         const totalCount = planetData.tasks.length;
@@ -972,7 +1097,7 @@ class Dashboard {
 
         tasks.innerHTML = planetData.tasks.map(task => `
             <div class="task-item ${task.completed ? 'completed' : ''}" data-task-id="${task.id}">
-                <div class="task-checkbox ${task.completed ? 'checked' : ''}" onclick="dashboard.toggleTask('${planetId}', ${task.id})"></div>
+                <div class="task-checkbox ${task.completed ? 'checked' : ''}" data-planet-id="${planetId}" data-task-id="${task.id}"></div>
                 <div class="task-content">
                     <div class="task-title">${task.title}</div>
                     <div class="task-description">${task.description}</div>
@@ -984,6 +1109,22 @@ class Dashboard {
             </div>
         `).join('');
 
+        // Agregar event listeners a los checkboxes después de renderizar
+        const dashboardInstance = this; // Guardar referencia a la instancia
+        tasks.querySelectorAll('.task-checkbox').forEach(checkbox => {
+            // Remover event listeners previos para evitar duplicados
+            checkbox.replaceWith(checkbox.cloneNode(true));
+        });
+        
+        // Agregar nuevos event listeners
+        tasks.querySelectorAll('.task-checkbox').forEach(checkbox => {
+            checkbox.addEventListener('click', function(e) {
+                const planetId = this.dataset.planetId;
+                const taskId = parseInt(this.dataset.taskId);
+                dashboardInstance.toggleTask(planetId, taskId);
+            });
+        });
+
         // Renderizar recursos
         resources.innerHTML = planetData.resources.map(resource => 
             `<div class="resource-item">📚 ${resource}</div>`
@@ -993,33 +1134,84 @@ class Dashboard {
         this.currentPlanetId = planetId;
     }
 
+    updateModalUI(planetId) {
+        const planetData = this.pythonRoadmap[planetId];
+        if (!planetData) return;
+
+        // Actualizar contadores del modal
+        const completedTasks = document.getElementById('completedTasks');
+        const totalTasks = document.getElementById('totalTasks');
+        const xpEarned = document.getElementById('xpEarned');
+        
+        if (completedTasks && totalTasks && xpEarned) {
+            const completedCount = planetData.tasks.filter(task => task.completed).length;
+            const totalCount = planetData.tasks.length;
+            const earnedXP = planetData.tasks.filter(task => task.completed).reduce((sum, task) => sum + task.xp, 0);
+
+            completedTasks.textContent = completedCount;
+            totalTasks.textContent = totalCount;
+            xpEarned.textContent = `${earnedXP} XP`;
+        }
+
+        // Actualizar estado visual de las tareas
+        planetData.tasks.forEach(task => {
+            const taskElement = document.querySelector(`[data-task-id="${task.id}"]`);
+            if (taskElement) {
+                const checkbox = taskElement.querySelector('.task-checkbox');
+                if (checkbox) {
+                    checkbox.classList.toggle('checked', task.completed);
+                }
+                taskElement.classList.toggle('completed', task.completed);
+            }
+        });
+    }
+
     toggleTask(planetId, taskId) {
+        console.log('🔧 toggleTask llamado:', { planetId, taskId });
+        console.log('🔧 Estado actual:', { 
+            tasksMarkedInSession: this.tasksMarkedInCurrentSession,
+            warningCount: this.warningCount 
+        });
+        
         const planetData = this.pythonRoadmap[planetId];
         const task = planetData.tasks.find(t => t.id === taskId);
         
         if (task) {
-            // Verificar si ya hay una tarea marcada
-            const completedTasks = planetData.tasks.filter(t => t.completed).length;
-            
             if (task.completed) {
                 // Desmarcar tarea
                 task.completed = false;
-                this.userData.points -= task.xp;
+                this.tasksMarkedInCurrentSession--;
+                if (this.userData.points) {
+                    this.userData.points -= task.xp;
+                }
             } else {
                 // Intentar marcar tarea
-                if (completedTasks >= 1) {
-                    // Mostrar easter egg warning
+                console.log('🔧 Intentando marcar tarea. Estado actual:', this.tasksMarkedInCurrentSession);
+                
+                if (this.tasksMarkedInCurrentSession >= 1) {
+                    // Ya hay una tarea marcada en esta apertura del modal
+                    console.log('🔧 ¡WARNING! Ya hay una tarea marcada');
                     this.showEasterEggWarning();
                     return;
                 } else {
                     // Marcar tarea
                     task.completed = true;
+                    this.tasksMarkedInCurrentSession++;
+                    console.log('🔧 Tarea marcada. Nuevo estado:', this.tasksMarkedInCurrentSession);
+                    
+                    if (!this.userData.points) {
+                        this.userData.points = 0;
+                    }
                     this.userData.points += task.xp;
+                    
+                    // Mostrar mensaje de éxito
+                    this.showSuccessMessage(`¡Progreso guardado exitosamente! +${task.xp} XP`);
                 }
             }
             
             // Guardar en localStorage
             localStorage.setItem('userData', JSON.stringify(this.userData));
+            localStorage.setItem('pythonRoadmap', JSON.stringify(this.pythonRoadmap));
             
             // Verificar si se completó el planeta
             this.checkPlanetCompletion(planetId);
@@ -1027,17 +1219,99 @@ class Dashboard {
             // Actualizar UI
             this.updateUserInterface();
             this.updateRoadmapProgress();
-            this.openPlanetModal(planetId); // Recargar modal
+            
+            // NO recargar el modal, solo actualizar la UI del modal actual
+            this.updateModalUI(planetId);
         }
     }
     
     showEasterEggWarning() {
+        console.log('🚨 ¡WARNING MOSTRADO! Contador:', this.warningCount + 1);
+        
         const warning = document.getElementById('easterEggWarning');
+        const modal = document.getElementById('planetModal');
+        
+        // Incrementar contador de warnings
+        this.warningCount++;
+        
+        // Mostrar el warning centrado en el viewport
         warning.style.display = 'block';
+        
+        // Agregar borde amarillo al modal
+        modal.style.border = '3px solidrgb(251, 36, 36)';
+        modal.style.boxShadow = '0 0 20px rgba(233, 11, 11, 0.5)';
+        
+        // Verificar si debe mostrar el easter egg (después de 5 warnings)
+        if (this.warningCount >= 5) {
+            this.showEasterEgg();
+        }
+        
+        // Ocultar después de 5 segundos y restaurar el modal
+        setTimeout(() => {
+            warning.style.display = 'none';
+            modal.style.border = '';
+            modal.style.boxShadow = '';
+        }, 5000);
+    }
+
+    showSuccessMessage(message) {
+        // Crear el mensaje de éxito
+        const successMessage = document.createElement('div');
+        successMessage.className = 'success-message';
+        successMessage.innerHTML = `
+            <div class="success-content">
+                <div class="success-icon">✅</div>
+                <div class="success-text">
+                    <h4>¡Éxito!</h4>
+                    <p>${message}</p>
+                </div>
+            </div>
+        `;
+        
+        // Agregar al body
+        document.body.appendChild(successMessage);
+        
+        // Mostrar con animación
+        setTimeout(() => {
+            successMessage.classList.add('active');
+        }, 100);
         
         // Ocultar después de 3 segundos
         setTimeout(() => {
-            warning.style.display = 'none';
+            successMessage.classList.remove('active');
+            setTimeout(() => {
+                successMessage.remove();
+            }, 300);
+        }, 3000);
+    }
+
+    showEasterEgg() {
+        // Crear el modal del easter egg - solo la imagen
+        const easterEggModal = document.createElement('div');
+        easterEggModal.className = 'easter-egg-modal';
+        easterEggModal.innerHTML = `
+            <div class="easter-egg-backdrop"></div>
+            <div class="easter-egg-content">
+                <div class="easter-egg-image">
+                    <img src="assets/ui_elements/cerebrito.jpg" alt="Cerebrito" />
+                </div>
+            </div>
+        `;
+        
+        // Agregar al body
+        document.body.appendChild(easterEggModal);
+        
+        // Mostrar con animación
+        setTimeout(() => {
+            easterEggModal.classList.add('active');
+        }, 100);
+        
+        // Resetear contador de warnings
+        this.warningCount = 0;
+        
+        // Ocultar automáticamente después de 3 segundos
+        setTimeout(() => {
+            easterEggModal.remove();
         }, 3000);
     }
 
@@ -1050,6 +1324,9 @@ class Dashboard {
             
             // Desbloquear siguiente planeta
             this.unlockNextPlanet(planetId);
+            
+            // Guardar progreso en localStorage
+            localStorage.setItem('pythonRoadmap', JSON.stringify(this.pythonRoadmap));
         }
     }
 
@@ -1060,23 +1337,38 @@ class Dashboard {
         
         if (nextIndex < planetOrder.length) {
             const nextPlanetId = planetOrder[nextIndex];
-            this.pythonRoadmap[nextPlanetId].status = 'in-progress';
+            this.pythonRoadmap[nextPlanetId].status = 'unlocked';
             
             // Actualizar UI
             this.renderRoadmap();
+            this.updateRoadmapProgress();
         }
     }
 
     closePlanetModal() {
         const modal = document.getElementById('planetModal');
+        const warning = document.getElementById('easterEggWarning');
+        
+        // Limpiar estado del modal
         modal.classList.remove('active');
+        modal.style.border = '';
+        modal.style.boxShadow = '';
+        
+        // Ocultar warning
+        warning.style.display = 'none';
+        
+        // Resetear contador de tareas marcadas
+        this.tasksMarkedInCurrentSession = 0;
+        
+        // NOTA: No se resetea this.warningCount para mantener el conteo del easter egg
+        
         this.currentPlanetId = null;
     }
 
     startPlanetLearning() {
         if (this.currentPlanetId) {
-            // Aquí iría la lógica para comenzar el aprendizaje del planeta
-            alert(`¡Comenzando aprendizaje de ${this.pythonRoadmap[this.currentPlanetId].name}!`);
+            // Mostrar mensaje de éxito verde
+            this.showSuccessMessage('¡Progreso guardado con éxito!');
             this.closePlanetModal();
         }
     }
@@ -1084,7 +1376,7 @@ class Dashboard {
     getStatusText(status) {
         const statusMap = {
             'completed': 'Completado',
-            'in-progress': 'En Progreso',
+            'unlocked': 'Disponible',
             'locked': 'Bloqueado'
         };
         return statusMap[status] || status;
@@ -1143,7 +1435,10 @@ class Dashboard {
             this.notes.unshift(newNote);
         }
 
-        localStorage.setItem('userNotes', JSON.stringify(this.notes));
+        // Guardar notas con clave única del usuario
+        const userId = this.userData?.user_id || 'anonymous';
+        const notesKey = `userNotes_${userId}`;
+        localStorage.setItem(notesKey, JSON.stringify(this.notes));
         this.renderNotes();
         this.closeNoteModal();
     }
@@ -1177,14 +1472,47 @@ class Dashboard {
         this.updateUserInterface();
     }
 
-    logout() {
-        localStorage.removeItem('userData');
-        localStorage.removeItem('authToken');
-        localStorage.removeItem('refreshToken');
-        localStorage.removeItem('loginTimestamp');
-        sessionStorage.clear();
+    async logout() {
+        try {
+            // Intentar hacer logout en el backend
+            await apiService.logout();
+        } catch (error) {
+            console.error('Error during logout:', error);
+        } finally {
+            // Limpiar datos locales
+            apiService.clearTokens();
+            localStorage.removeItem('userNotes');
+            localStorage.removeItem('userData');
+            localStorage.removeItem('loginTimestamp');
+            sessionStorage.clear();
+            
+            // Redirigir a login
+            window.location.href = 'login.html';
+        }
+    }
+
+    showError(message) {
+        const errorDiv = document.createElement('div');
+        errorDiv.className = 'error-message';
+        errorDiv.style.cssText = `
+            position: fixed;
+            top: 2rem;
+            right: 2rem;
+            background: var(--error);
+            color: white;
+            padding: 1rem 2rem;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow-card);
+            z-index: 9999;
+            animation: slideInRight 0.5s ease-out;
+        `;
+        errorDiv.textContent = message;
         
-        window.location.href = 'login.html';
+        document.body.appendChild(errorDiv);
+        
+        setTimeout(() => {
+            errorDiv.remove();
+        }, 4000);
     }
 }
 

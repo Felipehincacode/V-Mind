@@ -1452,51 +1452,206 @@ body {
 
 /* Easter Egg Warning */
 .easter-egg-warning {
-    margin-top: 1rem;
-    padding: 1rem;
-    background: rgba(245, 158, 11, 0.1);
-    border: 1px solid rgba(245, 158, 11, 0.3);
-    border-radius: var(--border-radius);
-    animation: slideIn 0.5s ease;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 90%;
+    max-width: 500px;
+    padding: 2rem;
+    background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+    border: 3px solid #f59e0b;
+    border-radius: 16px;
+    box-shadow: 0 20px 60px rgba(245, 158, 11, 0.6);
+    animation: slideInFromCenter 0.5s ease;
+    z-index: 10000;
 }
 
-.warning-content {
+/* Overlay de fondo para el warning */
+.easter-egg-warning::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: -1;
+}
+
+/* Success Message */
+.success-message {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    width: 90%;
+    max-width: 400px;
+    padding: 1.5rem;
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    border: 3px solid #059669;
+    border-radius: 16px;
+    box-shadow: 0 15px 40px rgba(16, 185, 129, 0.4);
+    animation: slideInFromRight 0.5s ease;
+    z-index: 10000;
+    transform: translateX(100%);
+    transition: transform 0.3s ease;
+}
+
+.success-message.active {
+    transform: translateX(0);
+}
+
+.success-content {
     display: flex;
     align-items: center;
     gap: 1rem;
 }
 
-.warning-icon {
+.success-icon {
     width: 40px;
     height: 40px;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 2rem;
+    font-size: 1.5rem;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+
+.success-text h4 {
+    color: white;
+    margin: 0 0 0.5rem 0;
+    font-size: 1.1rem;
+    font-weight: 700;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+.success-text p {
+    color: rgba(255, 255, 255, 0.9);
+    margin: 0;
+    font-size: 0.95rem;
+    line-height: 1.4;
+    font-weight: 500;
+}
+
+/* Easter Egg Modal */
+.easter-egg-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 20000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: opacity 0.5s ease;
+}
+
+.easter-egg-modal.active {
+    opacity: 1;
+}
+
+.easter-egg-backdrop {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.8);
+    backdrop-filter: blur(10px);
+}
+
+.easter-egg-content {
+    position: relative;
+    background: transparent;
+    border-radius: 20px;
+    padding: 0;
+    text-align: center;
+    max-width: 400px;
+    width: 90%;
+    transform: scale(0.8);
+    transition: transform 0.5s ease;
+}
+
+.easter-egg-modal.active .easter-egg-content {
+    transform: scale(1);
+}
+
+.easter-egg-image {
+    margin-bottom: 2rem;
+}
+
+.easter-egg-image img {
+    width: 300px;
+    height: 300px;
+    border-radius: 20px;
+    border: 4px solid rgba(255, 255, 255, 0.3);
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+    object-fit: cover;
+}
+
+/* Estilos eliminados - solo se muestra la imagen del easter egg */
+
+.warning-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 1rem;
+}
+
+.warning-icon {
+    width: 60px;
+    height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 3rem;
     animation: bounce 2s infinite;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 50%;
+    padding: 0.5rem;
 }
 
 .warning-text h4 {
-    color: #f59e0b;
-    margin: 0 0 0.5rem 0;
-    font-size: 1rem;
+    color: #1f2937;
+    margin: 0 0 0.75rem 0;
+    font-size: 1.3rem;
+    font-weight: 800;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
 }
 
 .warning-text p {
-    color: var(--text-secondary);
+    color: #374151;
     margin: 0;
-    font-size: 0.9rem;
-    line-height: 1.4;
+    font-size: 1rem;
+    line-height: 1.5;
+    font-weight: 600;
+    max-width: 400px;
 }
 
-@keyframes slideIn {
+@keyframes slideInFromCenter {
     from {
         opacity: 0;
-        transform: translateY(-10px);
+        transform: translate(-50%, -50%) scale(0.8);
     }
     to {
         opacity: 1;
-        transform: translateY(0);
+        transform: translate(-50%, -50%) scale(1);
+    }
+}
+
+@keyframes slideInFromRight {
+    from {
+        opacity: 0;
+        transform: translateX(100%);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
     }
 }
 
@@ -1509,6 +1664,17 @@ body {
     }
     60% {
         transform: translateY(-3px);
+    }
+}
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
     }
 }
 
@@ -1606,5 +1772,51 @@ body {
     
     .scroll-indicators {
         right: 1rem;
+    }
+}
+
+/* ===== ACCIONES DEL ROADMAP ===== */
+
+.roadmap-actions {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 2rem;
+}
+
+.beautiful-roadmap-btn {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1.5rem;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    text-decoration: none;
+    border-radius: var(--border-radius-lg);
+    font-weight: 600;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+    border: none;
+    cursor: pointer;
+}
+
+.beautiful-roadmap-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+    background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
+}
+
+.beautiful-roadmap-btn span:first-child {
+    font-size: 1.2rem;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .roadmap-actions {
+        margin-bottom: 1.5rem;
+    }
+    
+    .beautiful-roadmap-btn {
+        padding: 0.5rem 1rem;
+        font-size: 0.9rem;
     }
 }

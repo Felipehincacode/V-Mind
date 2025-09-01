@@ -215,6 +215,9 @@
         <section id="roadmap" class="scroll-section">
             <div class="roadmap-container">
                 <h2 class="section-title">Tu Viaje de Aprendizaje Python</h2>
+                
+              
+                
                 <div class="roadmap-content">
                     <!-- Slider horizontal de planetas -->
                     <div class="roadmap-slider">
@@ -354,9 +357,9 @@
                             <!-- Easter Egg Warning -->
                             <div class="easter-egg-warning" id="easterEggWarning" style="display: none;">
                                 <div class="warning-content">
-                                    <img src="assets/ui_elements/cerebrito.png" alt="Cerebrito" class="warning-icon">
+                                    <div class="warning-icon">🧠</div>
                                     <div class="warning-text">
-                                        <h4>¡Despacio, cerebrito! 🧠</h4>
+                                        <h4>¡Despacio, cerebrito!</h4>
                                         <p>Solo puedes marcar una tarea a la vez. ¡Tómate tu tiempo para aprender!</p>
                                     </div>
                                 </div>
@@ -374,14 +377,15 @@
             </div>
             <div class="modal-footer">
                 <button class="btn-secondary" id="closePlanetBtn">Cerrar</button>
-                <button class="btn-primary" id="startPlanetBtn">Comenzar Aprendizaje</button>
+                <button class="btn-primary" id="startPlanetBtn">Guardar Progreso</button>
             </div>
         </div>
     </div>
 
     <!-- Scripts -->
-    <script src="js/test-users.js"></script>
     <script src="js/space-background.js"></script>
-    <script src="js/dashboard.js"></script>
+    <script type="module" src="js/config.js"></script>
+    <script type="module" src="js/services/api.js"></script>
+    <script type="module" src="js/dashboard.js"></script>
 </body>
 </html>

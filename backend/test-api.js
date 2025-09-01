@@ -63,7 +63,7 @@ const testEndpoint = async (method, endpoint, body = null, token = null) => {
 };
 
 const runTests = async () => {
-  log(colors.blue, '🧪 Iniciando pruebas de la API Crisalida...\n');
+  log(colors.blue, '🧪 Iniciando pruebas de la API V-Mind...\n');
 
   // Test 1: Health Check
   log(colors.yellow, '1. Probando Health Check...');

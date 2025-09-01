@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Roadmap Hermoso - V-Mind</title>
+    
+    <!-- Estilos -->
+    <link rel="stylesheet" href="css/base.css">
+    <link rel="stylesheet" href="css/space-background.css">
+    <link rel="stylesheet" href="css/roadmap-beautiful.css">
+    
+    <!-- Fuentes -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Fondo espacial -->
+    <div class="stars-bg">
+        <canvas id="space"></canvas>
+    </div>
+
+    <!-- Contenido principal -->
+    <main class="dashboard-main">
+        <!-- Sección Roadmap -->
+        <section id="roadmap" class="scroll-section">
+            <div class="roadmap-container">
+                <h2 class="section-title">Tu Viaje de Aprendizaje</h2>
+                <div class="roadmap-content">
+                    <!-- Slider horizontal de planetas -->
+                    <div class="roadmap-slider">
+                        <div class="slider-container">
+                            <div class="slider-track" id="sliderTrack">
+                                <!-- Los planetas se generarán dinámicamente desde la API -->
+                            </div>
+                            
+                            <!-- Controles del slider -->
+                            <button class="slider-control prev" id="prevPlanet">
+                                <span>‹</span>
+                            </button>
+                            <button class="slider-control next" id="nextPlanet">
+                                <span>›</span>
+                            </button>
+                        </div>
+                        
+                        <!-- Indicadores de progreso -->
+                        <div class="progress-indicators">
+                            <div class="progress-bar">
+                                <div class="progress-fill" id="roadmapProgress" style="width: 0%"></div>
+                            </div>
+                            <span class="progress-text" id="progressText">0 de 0 planetas completados</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Modal del Cerebrito -->
+    <div class="cerebrito-modal" id="cerebritoModal">
+        <div class="cerebrito-content">
+            <button class="cerebrito-close" id="closeCerebritoModal">×</button>
+            <div class="cerebrito-image">
+                <img src="assets/cerebrito.jpg" alt="Cerebrito">
+            </div>
+            <h2 class="cerebrito-title">¡Despacio, cerebrito! 🧠</h2>
+            <p class="cerebrito-message">Solo puedes marcar una tarea por sesión. Guarda tu progreso y vuelve a entrar para marcar otra tarea.</p>
+            <div class="cerebrito-timer" id="cerebritoTimer">Cerrando en 3 segundos...</div>
+        </div>
+    </div>
+
+    <!-- Modal de Planetas -->
+    <div class="planet-modal" id="planetModal">
+        <div class="planet-modal-content">
+            <div class="planet-modal-header">
+                <h3 id="planetTitle">Planeta</h3>
+                <button class="modal-close" id="closePlanetModal">×</button>
+            </div>
+            <div class="planet-modal-body">
+                <div class="planet-details">
+                    <div class="planet-image-large">
+                        <img id="planetModalImage" src="" alt="Planeta">
+                    </div>
+                    <div class="planet-info-large">
+                        <h2 id="planetModalName">Nombre del Planeta</h2>
+                        <p id="planetModalDescription">Descripción del planeta</p>
+                        <div class="planet-status-large" id="planetModalStatus">Estado</div>
+                    </div>
+                </div>
+                
+                <div class="planet-content">
+                    <div class="tasks-section">
+                        <h3>Tareas de Aprendizaje</h3>
+                        <div class="tasks-progress">
+                            <div class="progress-info">
+                                <span class="completed-tasks" id="completedTasks">0</span> / <span class="total-tasks" id="totalTasks">0</span> tareas completadas
+                            </div>
+                            <div class="xp-earned">
+                                <span class="xp-icon">⭐</span>
+                                <span id="xpEarned">0 XP</span>
+                            </div>
+                        </div>
+                        
+                        <div class="tasks-list" id="tasksList">
+                            <!-- Las tareas se generarán dinámicamente -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script type="module" src="js/roadmap-beautiful.js"></script>
+    <script src="js/space-background.js"></script>
+</body>
+</html>

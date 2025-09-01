@@ -42,7 +42,7 @@ if [ ! -f .env ]; then
 DB_HOST=localhost
 DB_USER=root
 DB_PASSWORD=tu_contraseña_aqui
-DB_NAME=crisalida
+DB_NAME=vmind
 DB_PORT=3306
 
 # Server Configuration

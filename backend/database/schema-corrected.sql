@@ -26,7 +26,7 @@ CREATE TABLE roadmaps (
     roadmap_description TEXT,
     topic VARCHAR(100) NOT NULL,
     difficulty ENUM('beginner', 'intermediate', 'advanced') NOT NULL,
-    estimated_time INT DEFAULT 0, -- in munutes
+    estimated_time INT DEFAULT 0,
     user_id CHAR(36),
     creation_date DATETIME DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE SET NULL
@@ -172,10 +172,17 @@ CREATE INDEX idx_notes_user_id ON notes(user_id);
 CREATE INDEX idx_resources_user_id ON resources(user_id);
 
 -- Datos de ejemplo para pruebas
+-- Usuario 1: Laura
 INSERT INTO users (user_id, user_name, email, phone, passwords, rol, objetive, preferred_language)
 VALUES ('uuid-1234-5678', 'Laura Gómez', 'laura@example.com', '3001234567', 'laura123', 'user',
         'Quiero convertirme en desarrolladora web', 'es');
 
+-- Usuario 2: Admin
+INSERT INTO users (user_id, user_name, email, phone, passwords, rol, objetive, preferred_language)
+VALUES ('uuid-admin-9999', 'Carlos Rodríguez', 'carlos@example.com', '3009876543', 'carlos123', 'admin',
+        'Enseñar programación a otros', 'es');
+
+-- Intereses
 INSERT INTO interests (name) VALUES 
 ('Programación Web'),
 ('Inteligencia Artificial'),
@@ -183,88 +190,110 @@ INSERT INTO interests (name) VALUES
 ('Desarrollo Móvil'),
 ('DevOps');
 
+-- Intereses de Laura
 INSERT INTO interest_levels (user_id, interest_id, knowledge_level)
-VALUES ('uuid-1234-5678', 1, 'principiante'); -- Programación Web como principiante
+VALUES ('uuid-1234-5678', 1, 'principiante');
 
-INSERT INTO user_characterization (user_id, learning_goal, learning_pace)
-VALUES ('uuid-1234-5678', 'Conseguir un empleo en desarrollo web en 6 meses', 'equilibrado');
-
-INSERT INTO roadmaps (title, roadmap_description, topic, difficulty, estimated_time, user_id)
-VALUES ('Roadmap de Desarrollo Web', 'Ruta de aprendizaje para front-end y back-end', 'Programación Web',
-        'beginner', 180, 'uuid-1234-5678');
-
-INSERT INTO levels (roadmap_id, title, description, order_number, xp_reward, status)
-VALUES 
-(1, 'HTML & CSS Básico', 'Aprende a estructurar páginas web', 1, 100, 'unlocked'),
-(1, 'JavaScript Inicial', 'Primeros pasos con la programación web', 2, 150, 'locked'),
-(1, 'React Fundamentals', 'Introducción a React y componentes', 3, 200, 'locked');
-
-INSERT INTO tasks (level_id, title, description, type, xp_reward, status)
-VALUES 
-(1, 'Leer introducción a HTML', 'Material básico de etiquetas HTML', 'reading', 50, 'pending'),
-(1, 'Practicar con CSS', 'Aplicar estilos a una página simple', 'practice', 50, 'pending'),
-(2, 'Hacer un quiz de JavaScript', 'Preguntas básicas sobre variables y funciones', 'quiz', 75, 'pending'),
-(3, 'Crear un proyecto React', 'Desarrollar una aplicación simple con React', 'project', 100, 'pending');
-
-INSERT INTO user_tasks (user_task_id, user_id, task_id, status, date_completed)
-VALUES 
-('uuid-task-1', 'uuid-1234-5678', 1, 'completed', NOW()),
-('uuid-task-2', 'uuid-1234-5678', 2, 'in_progress', NULL);
-
-INSERT INTO triumphs (title, description, icon, xp_required, type_triumph)
-VALUES 
-('Primer paso', 'Completaste tu primera tarea', 'icon1.png', 50, 'progress'),
-('Constancia', 'Completaste 5 días seguidos', 'icon2.png', 0, 'streak'),
-('Explorador', 'Completaste 3 roadmaps diferentes', 'icon3.png', 200, 'special');
-
-INSERT INTO user_triumphs (user_id, triumph_id)
-VALUES ('uuid-1234-5678', 1);
-
-INSERT INTO streaks (user_id, start_date, longest_streak_days, last_active_date, current_streak_days)
-VALUES ('uuid-1234-5678', '2025-08-20', 3, NOW(), 2);
-
-INSERT INTO notes (user_id, title, content)
-VALUES ('uuid-1234-5678', 'Apuntes HTML', 'Recordar que siempre se cierra la etiqueta <p> y usar semantic HTML');
-
-INSERT INTO resources (user_id, title, type, link, duration_minutes)
-VALUES 
-('uuid-1234-5678', 'Curso HTML en YouTube', 'video', 'https://youtube.com/cursohtml', 45),
-('uuid-1234-5678', 'Documentación CSS', 'web', 'https://developer.mozilla.org/css', NULL);
-
--- Crear usuario administrador
-INSERT INTO users (user_id, user_name, email, phone, passwords, rol, objetive, preferred_language)
-VALUES ('uuid-admin-9999', 'Carlos Rodríguez', 'carlos@example.com', '3009876543', 'carlos123', 'admin',
-        'Enseñar programación a otros', 'es');
-
--- Asignar intereses al admin
+-- Intereses del admin
 INSERT INTO interest_levels (user_id, interest_id, knowledge_level)
 VALUES 
 ('uuid-admin-9999', 1, 'experto'),
 ('uuid-admin-9999', 2, 'avanzado'),
 ('uuid-admin-9999', 3, 'intermedio');
 
+-- Caracterización de Laura
+INSERT INTO user_characterization (user_id, learning_goal, learning_pace)
+VALUES ('uuid-1234-5678', 'Conseguir un empleo en desarrollo web en 6 meses', 'equilibrado');
+
 -- Caracterización del admin
 INSERT INTO user_characterization (user_id, learning_goal, learning_pace)
 VALUES ('uuid-admin-9999', 'Ayudar a otros a aprender programación', 'rapido');
 
--- Roadmap creado por el admin
+-- Roadmap 1: Desarrollo Web (creado por Laura)
+INSERT INTO roadmaps (title, roadmap_description, topic, difficulty, estimated_time, user_id)
+VALUES ('Roadmap de Desarrollo Web', 'Ruta de aprendizaje para front-end y back-end', 'Programación Web',
+        'beginner', 180, 'uuid-1234-5678');
+
+-- Roadmap 2: Python (creado por admin)
 INSERT INTO roadmaps (title, roadmap_description, topic, difficulty, estimated_time, user_id)
 VALUES ('Roadmap de Python', 'Aprende Python desde cero hasta avanzado', 'Programación',
         'beginner', 240, 'uuid-admin-9999');
 
--- Niveles del roadmap de Python
+-- Niveles del Roadmap de Desarrollo Web (roadmap_id = 1)
+INSERT INTO levels (roadmap_id, title, description, order_number, xp_reward, status)
+VALUES 
+(1, 'HTML & CSS Básico', 'Aprende a estructurar páginas web', 1, 100, 'unlocked'),
+(1, 'JavaScript Inicial', 'Primeros pasos con la programación web', 2, 150, 'locked'),
+(1, 'React Fundamentals', 'Introducción a React y componentes', 3, 200, 'locked');
+
+-- Niveles del Roadmap de Python (roadmap_id = 2)
 INSERT INTO levels (roadmap_id, title, description, order_number, xp_reward, status)
 VALUES 
 (2, 'Python Básico', 'Variables, tipos de datos y estructuras de control', 1, 100, 'unlocked'),
 (2, 'Funciones y Módulos', 'Crear funciones y usar módulos', 2, 150, 'locked'),
 (2, 'POO en Python', 'Programación orientada a objetos', 3, 200, 'locked');
 
--- Tareas del roadmap de Python
+-- Tareas del nivel 1 (HTML & CSS Básico)
+INSERT INTO tasks (level_id, title, description, type, xp_reward, status)
+VALUES 
+(1, 'Leer introducción a HTML', 'Material básico de etiquetas HTML', 'reading', 50, 'pending'),
+(1, 'Practicar con CSS', 'Aplicar estilos a una página simple', 'practice', 50, 'pending');
+
+-- Tareas del nivel 2 (JavaScript Inicial)
+INSERT INTO tasks (level_id, title, description, type, xp_reward, status)
+VALUES 
+(2, 'Hacer un quiz de JavaScript', 'Preguntas básicas sobre variables y funciones', 'quiz', 75, 'pending');
+
+-- Tareas del nivel 3 (React Fundamentals)
+INSERT INTO tasks (level_id, title, description, type, xp_reward, status)
+VALUES 
+(3, 'Crear un proyecto React', 'Desarrollar una aplicación simple con React', 'project', 100, 'pending');
+
+-- Tareas del nivel 4 (Python Básico)
 INSERT INTO tasks (level_id, title, description, type, xp_reward, status)
 VALUES 
 (4, 'Instalar Python', 'Configurar el entorno de desarrollo', 'practice', 25, 'pending'),
-(4, 'Variables y tipos', 'Practicar con diferentes tipos de datos', 'practice', 50, 'pending'),
-(5, 'Crear funciones', 'Desarrollar funciones personalizadas', 'practice', 75, 'pending'),
+(4, 'Variables y tipos', 'Practicar con diferentes tipos de datos', 'practice', 50, 'pending');
+
+-- Tareas del nivel 5 (Funciones y Módulos)
+INSERT INTO tasks (level_id, title, description, type, xp_reward, status)
+VALUES 
+(5, 'Crear funciones', 'Desarrollar funciones personalizadas', 'practice', 75, 'pending');
+
+-- Tareas del nivel 6 (POO en Python)
+INSERT INTO tasks (level_id, title, description, type, xp_reward, status)
+VALUES 
 (6, 'Proyecto final', 'Crear una aplicación completa con POO', 'project', 150, 'pending');
+
+-- Progreso de Laura en tareas
+INSERT INTO user_tasks (user_task_id, user_id, task_id, status, date_completed)
+VALUES 
+('uuid-task-1', 'uuid-1234-5678', 1, 'completed', NOW()),
+('uuid-task-2', 'uuid-1234-5678', 2, 'in_progress', NULL);
+
+-- Logros/triumphs
+INSERT INTO triumphs (title, description, icon, xp_required, type_triumph)
+VALUES 
+('Primer paso', 'Completaste tu primera tarea', 'icon1.png', 50, 'progress'),
+('Constancia', 'Completaste 5 días seguidos', 'icon2.png', 0, 'streak'),
+('Explorador', 'Completaste 3 roadmaps diferentes', 'icon3.png', 200, 'special');
+
+-- Logros de Laura
+INSERT INTO user_triumphs (user_id, triumph_id)
+VALUES ('uuid-1234-5678', 1);
+
+-- Racha de Laura
+INSERT INTO streaks (user_id, start_date, longest_streak_days, last_active_date, current_streak_days)
+VALUES ('uuid-1234-5678', '2025-01-20', 3, NOW(), 2);
+
+-- Notas de Laura
+INSERT INTO notes (user_id, title, content)
+VALUES ('uuid-1234-5678', 'Apuntes HTML', 'Recordar que siempre se cierra la etiqueta <p> y usar semantic HTML');
+
+-- Recursos de Laura
+INSERT INTO resources (user_id, title, type, link, duration_minutes)
+VALUES 
+('uuid-1234-5678', 'Curso HTML en YouTube', 'video', 'https://youtube.com/cursohtml', 45),
+('uuid-1234-5678', 'Documentación CSS', 'web', 'https://developer.mozilla.org/css', NULL);
 
 COMMIT;

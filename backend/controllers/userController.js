@@ -1,384 +1,418 @@
 const { pool } = require('../config/database');
 
+// ===== ESTADÍSTICAS DEL USUARIO =====
+
+const getUserStats = async (req, res) => {
+    try {
+        const userId = req.user.user_id;
+
+        // Obtener datos del usuario
+        const [userRows] = await pool.execute(
+            'SELECT user_id, user_name, email, current_level, creation_date FROM users WHERE user_id = ?',
+            [userId]
+        );
+
+        if (userRows.length === 0) {
+            return res.status(404).json({
+                success: false,
+                message: 'Usuario no encontrado'
+            });
+        }
+
+        const user = userRows[0];
+
+        // Obtener estadísticas de tareas
+        const [taskStats] = await pool.execute(`
+            SELECT 
+                COUNT(*) as total_tasks,
+                SUM(CASE WHEN status = 'completed' THEN 1 ELSE 0 END) as completed_tasks,
+                SUM(CASE WHEN status = 'in_progress' THEN 1 ELSE 0 END) as in_progress_tasks,
+                SUM(CASE WHEN status = 'pending' THEN 1 ELSE 0 END) as pending_tasks,
+                SUM(CASE WHEN status = 'completed' THEN xp_reward ELSE 0 END) as total_xp
+            FROM user_tasks ut
+            JOIN tasks t ON ut.task_id = t.task_id
+            WHERE ut.user_id = ?
+        `, [userId]);
+
+        // Obtener racha actual
+        const [streakRows] = await pool.execute(
+            'SELECT current_streak_days, longest_streak_days FROM streaks WHERE user_id = ?',
+            [userId]
+        );
+
+        const streak = streakRows.length > 0 ? streakRows[0] : { current_streak_days: 0, longest_streak_days: 0 };
+
+        // Calcular porcentaje de completado
+        const stats = taskStats[0];
+        const completionPercentage = stats.total_tasks > 0 ? 
+            Math.round((stats.completed_tasks / stats.total_tasks) * 100) : 0;
+
+        res.json({
+            success: true,
+            data: {
+                user: {
+                    user_id: user.user_id,
+                    user_name: user.user_name,
+                    email: user.email,
+                    current_level: user.current_level,
+                    creation_date: user.creation_date
+                },
+                tasks: {
+                    total: stats.total_tasks,
+                    completed: stats.completed_tasks,
+                    in_progress: stats.in_progress_tasks,
+                    pending: stats.pending_tasks,
+                    total_xp: stats.total_xp || 0,
+                    completion_percentage: completionPercentage
+                },
+                streak: {
+                    current_streak_days: streak.current_streak_days,
+                    longest_streak_days: streak.longest_streak_days
+                }
+            }
+        });
+
+    } catch (error) {
+        console.error('Get user stats error:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Error obteniendo estadísticas del usuario',
+            error: error.message
+        });
+    }
+};
+
+// ===== INTERESES DEL USUARIO =====
+
 const getUserInterests = async (req, res) => {
-  try {
-    const userId = req.user.user_id;
-    
-    const query = `
-      SELECT i.interest_id, i.name, il.knowledge_level
-      FROM interests i
-      LEFT JOIN interest_levels il ON i.interest_id = il.interest_id AND il.user_id = ?
-      ORDER BY i.name
-    `;
+    try {
+        const userId = req.user.user_id;
 
-    const [rows] = await pool.execute(query, [userId]);
+        const [interests] = await pool.execute(`
+            SELECT i.interest_id, i.name, il.knowledge_level
+            FROM interests i
+            LEFT JOIN interest_levels il ON i.interest_id = il.interest_id AND il.user_id = ?
+            ORDER BY i.name
+        `, [userId]);
 
-    res.json({
-      success: true,
-      data: rows
-    });
+        res.json({
+            success: true,
+            data: interests
+        });
 
-  } catch (error) {
-    console.error('Get user interests error:', error);
-    res.status(500).json({
-      success: false,
-      message: 'Error getting user interests',
-      error: error.message
-    });
-  }
+    } catch (error) {
+        console.error('Get user interests error:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Error obteniendo intereses del usuario',
+            error: error.message
+        });
+    }
 };
 
-const updateUserInterest = async (req, res) => {
-  try {
-    const userId = req.user.user_id;
-    const { interestId, knowledgeLevel } = req.body;
+// ===== NOTAS DEL USUARIO =====
 
-    if (!interestId || !knowledgeLevel) {
-      return res.status(400).json({
-        success: false,
-        message: 'Interest ID and knowledge level are required'
-      });
+const getNotes = async (req, res) => {
+    try {
+        const userId = req.user.user_id;
+
+        const [notes] = await pool.execute(
+            'SELECT * FROM notes WHERE user_id = ? ORDER BY updated_at DESC',
+            [userId]
+        );
+
+        res.json({
+            success: true,
+            data: notes
+        });
+
+    } catch (error) {
+        console.error('Get notes error:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Error obteniendo notas',
+            error: error.message
+        });
     }
-
-    const validLevels = ['novato', 'principiante', 'intermedio', 'avanzado', 'experto'];
-    if (!validLevels.includes(knowledgeLevel)) {
-      return res.status(400).json({
-        success: false,
-        message: 'Invalid knowledge level'
-      });
-    }
-
-    const query = `
-      INSERT INTO interest_levels (user_id, interest_id, knowledge_level)
-      VALUES (?, ?, ?)
-      ON DUPLICATE KEY UPDATE knowledge_level = VALUES(knowledge_level)
-    `;
-
-    await pool.execute(query, [userId, interestId, knowledgeLevel]);
-
-    res.json({
-      success: true,
-      message: 'Interest updated successfully'
-    });
-
-  } catch (error) {
-    console.error('Update user interest error:', error);
-    res.status(500).json({
-      success: false,
-      message: 'Error updating user interest',
-      error: error.message
-    });
-  }
-};
-
-const getUserNotes = async (req, res) => {
-  try {
-    const userId = req.user.user_id;
-    
-    const query = `
-      SELECT note_id, title, content, created_at, updated_at
-      FROM notes
-      WHERE user_id = ?
-      ORDER BY updated_at DESC
-    `;
-
-    const [rows] = await pool.execute(query, [userId]);
-
-    res.json({
-      success: true,
-      data: rows
-    });
-
-  } catch (error) {
-    console.error('Get user notes error:', error);
-    res.status(500).json({
-      success: false,
-      message: 'Error getting user notes',
-      error: error.message
-    });
-  }
 };
 
 const createNote = async (req, res) => {
-  try {
-    const userId = req.user.user_id;
-    const { title, content } = req.body;
+    try {
+        const userId = req.user.user_id;
+        const { title, content } = req.body;
 
-    if (!title || !content) {
-      return res.status(400).json({
-        success: false,
-        message: 'Title and content are required'
-      });
+        if (!title || !content) {
+            return res.status(400).json({
+                success: false,
+                message: 'Título y contenido son requeridos'
+            });
+        }
+
+        const [result] = await pool.execute(
+            'INSERT INTO notes (user_id, title, content) VALUES (?, ?, ?)',
+            [userId, title, content]
+        );
+
+        const [newNote] = await pool.execute(
+            'SELECT * FROM notes WHERE note_id = ?',
+            [result.insertId]
+        );
+
+        res.status(201).json({
+            success: true,
+            message: 'Nota creada exitosamente',
+            data: newNote[0]
+        });
+
+    } catch (error) {
+        console.error('Create note error:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Error creando nota',
+            error: error.message
+        });
     }
-
-    const query = `
-      INSERT INTO notes (user_id, title, content)
-      VALUES (?, ?, ?)
-    `;
-
-    const [result] = await pool.execute(query, [userId, title, content]);
-
-    res.status(201).json({
-      success: true,
-      message: 'Note created successfully',
-      data: { note_id: result.insertId }
-    });
-
-  } catch (error) {
-    console.error('Create note error:', error);
-    res.status(500).json({
-      success: false,
-      message: 'Error creating note',
-      error: error.message
-    });
-  }
 };
 
 const updateNote = async (req, res) => {
-  try {
-    const userId = req.user.user_id;
-    const { noteId } = req.params;
-    const { title, content } = req.body;
+    try {
+        const userId = req.user.user_id;
+        const { noteId } = req.params;
+        const { title, content } = req.body;
 
-    if (!title && !content) {
-      return res.status(400).json({
-        success: false,
-        message: 'At least title or content must be provided'
-      });
+        // Verificar que la nota pertenece al usuario
+        const [existingNote] = await pool.execute(
+            'SELECT * FROM notes WHERE note_id = ? AND user_id = ?',
+            [noteId, userId]
+        );
+
+        if (existingNote.length === 0) {
+            return res.status(404).json({
+                success: false,
+                message: 'Nota no encontrada'
+            });
+        }
+
+        await pool.execute(
+            'UPDATE notes SET title = ?, content = ?, updated_at = NOW() WHERE note_id = ?',
+            [title, content, noteId]
+        );
+
+        const [updatedNote] = await pool.execute(
+            'SELECT * FROM notes WHERE note_id = ?',
+            [noteId]
+        );
+
+        res.json({
+            success: true,
+            message: 'Nota actualizada exitosamente',
+            data: updatedNote[0]
+        });
+
+    } catch (error) {
+        console.error('Update note error:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Error actualizando nota',
+            error: error.message
+        });
     }
-
-    const updateFields = [];
-    const values = [];
-
-    if (title) {
-      updateFields.push('title = ?');
-      values.push(title);
-    }
-    if (content) {
-      updateFields.push('content = ?');
-      values.push(content);
-    }
-
-    values.push(userId, noteId);
-
-    const query = `
-      UPDATE notes 
-      SET ${updateFields.join(', ')}, updated_at = NOW()
-      WHERE user_id = ? AND note_id = ?
-    `;
-
-    const [result] = await pool.execute(query, values);
-
-    if (result.affectedRows === 0) {
-      return res.status(404).json({
-        success: false,
-        message: 'Note not found'
-      });
-    }
-
-    res.json({
-      success: true,
-      message: 'Note updated successfully'
-    });
-
-  } catch (error) {
-    console.error('Update note error:', error);
-    res.status(500).json({
-      success: false,
-      message: 'Error updating note',
-      error: error.message
-    });
-  }
 };
 
 const deleteNote = async (req, res) => {
-  try {
-    const userId = req.user.user_id;
-    const { noteId } = req.params;
+    try {
+        const userId = req.user.user_id;
+        const { noteId } = req.params;
 
-    const query = 'DELETE FROM notes WHERE user_id = ? AND note_id = ?';
-    const [result] = await pool.execute(query, [userId, noteId]);
+        // Verificar que la nota pertenece al usuario
+        const [existingNote] = await pool.execute(
+            'SELECT * FROM notes WHERE note_id = ? AND user_id = ?',
+            [noteId, userId]
+        );
 
-    if (result.affectedRows === 0) {
-      return res.status(404).json({
-        success: false,
-        message: 'Note not found'
-      });
-    }
-
-    res.json({
-      success: true,
-      message: 'Note deleted successfully'
-    });
-
-  } catch (error) {
-    console.error('Delete note error:', error);
-    res.status(500).json({
-      success: false,
-      message: 'Error deleting note',
-      error: error.message
-    });
-  }
-};
-
-const getUserResources = async (req, res) => {
-  try {
-    const userId = req.user.user_id;
-    
-    const query = `
-      SELECT resource_id, title, type, link, duration_minutes, date_saved
-      FROM resources
-      WHERE user_id = ?
-      ORDER BY date_saved DESC
-    `;
-
-    const [rows] = await pool.execute(query, [userId]);
-
-    res.json({
-      success: true,
-      data: rows
-    });
-
-  } catch (error) {
-    console.error('Get user resources error:', error);
-    res.status(500).json({
-      success: false,
-      message: 'Error getting user resources',
-      error: error.message
-    });
-  }
-};
-
-const saveResource = async (req, res) => {
-  try {
-    const userId = req.user.user_id;
-    const { title, type, link, duration_minutes } = req.body;
-
-    if (!title || !type || !link) {
-      return res.status(400).json({
-        success: false,
-        message: 'Title, type and link are required'
-      });
-    }
-
-    const validTypes = ['video', 'pdf', 'web', 'otro'];
-    if (!validTypes.includes(type)) {
-      return res.status(400).json({
-        success: false,
-        message: 'Invalid resource type'
-      });
-    }
-
-    const query = `
-      INSERT INTO resources (user_id, title, type, link, duration_minutes)
-      VALUES (?, ?, ?, ?, ?)
-    `;
-
-    const [result] = await pool.execute(query, [userId, title, type, link, duration_minutes]);
-
-    res.status(201).json({
-      success: true,
-      message: 'Resource saved successfully',
-      data: { resource_id: result.insertId }
-    });
-
-  } catch (error) {
-    console.error('Save resource error:', error);
-    res.status(500).json({
-      success: false,
-      message: 'Error saving resource',
-      error: error.message
-    });
-  }
-};
-
-const getUserStats = async (req, res) => {
-  try {
-    const userId = req.user.user_id;
-    
-    // Get user basic info
-    const userQuery = 'SELECT current_level, creation_date, last_connection FROM users WHERE user_id = ?';
-    const [userRows] = await pool.execute(userQuery, [userId]);
-    const user = userRows[0];
-
-    // Get task progress
-    const taskQuery = `
-      SELECT 
-        COUNT(*) as total_tasks,
-        SUM(CASE WHEN ut.status = 'completed' THEN 1 ELSE 0 END) as completed_tasks,
-        SUM(CASE WHEN ut.status = 'completed' THEN t.xp_reward ELSE 0 END) as total_xp
-      FROM user_tasks ut
-      JOIN tasks t ON ut.task_id = t.task_id
-      WHERE ut.user_id = ?
-    `;
-    const [taskRows] = await pool.execute(taskQuery, [userId]);
-    const taskStats = taskRows[0];
-
-    // Get streak info
-    const streakQuery = 'SELECT current_streak_days, longest_streak_days FROM streaks WHERE user_id = ?';
-    const [streakRows] = await pool.execute(streakQuery, [userId]);
-    const streak = streakRows[0] || { current_streak_days: 0, longest_streak_days: 0 };
-
-    // Get triumphs count
-    const triumphQuery = 'SELECT COUNT(*) as triumphs_count FROM user_triumphs WHERE user_id = ?';
-    const [triumphRows] = await pool.execute(triumphQuery, [userId]);
-    const triumphs = triumphRows[0];
-
-    // Get notes and resources count
-    const notesQuery = 'SELECT COUNT(*) as notes_count FROM notes WHERE user_id = ?';
-    const [notesRows] = await pool.execute(notesQuery, [userId]);
-    const notes = notesRows[0];
-
-    const resourcesQuery = 'SELECT COUNT(*) as resources_count FROM resources WHERE user_id = ?';
-    const [resourcesRows] = await pool.execute(resourcesQuery, [userId]);
-    const resources = resourcesRows[0];
-
-    res.json({
-      success: true,
-      data: {
-        user: {
-          current_level: user.current_level,
-          creation_date: user.creation_date,
-          last_connection: user.last_connection
-        },
-        tasks: {
-          total: parseInt(taskStats.total_tasks),
-          completed: parseInt(taskStats.completed_tasks),
-          total_xp: parseInt(taskStats.total_xp),
-          completion_percentage: taskStats.total_tasks > 0 
-            ? Math.round((taskStats.completed_tasks / taskStats.total_tasks) * 100) 
-            : 0
-        },
-        streak: {
-          current: parseInt(streak.current_streak_days),
-          longest: parseInt(streak.longest_streak_days)
-        },
-        achievements: {
-          triumphs: parseInt(triumphs.triumphs_count),
-          notes: parseInt(notes.notes_count),
-          resources: parseInt(resources.resources_count)
+        if (existingNote.length === 0) {
+            return res.status(404).json({
+                success: false,
+                message: 'Nota no encontrada'
+            });
         }
-      }
-    });
 
-  } catch (error) {
-    console.error('Get user stats error:', error);
-    res.status(500).json({
-      success: false,
-      message: 'Error getting user stats',
-      error: error.message
-    });
-  }
+        await pool.execute(
+            'DELETE FROM notes WHERE note_id = ?',
+            [noteId]
+        );
+
+        res.json({
+            success: true,
+            message: 'Nota eliminada exitosamente'
+        });
+
+    } catch (error) {
+        console.error('Delete note error:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Error eliminando nota',
+            error: error.message
+        });
+    }
+};
+
+// ===== RECURSOS DEL USUARIO =====
+
+const getResources = async (req, res) => {
+    try {
+        const userId = req.user.user_id;
+
+        const [resources] = await pool.execute(
+            'SELECT * FROM resources WHERE user_id = ? ORDER BY date_saved DESC',
+            [userId]
+        );
+
+        res.json({
+            success: true,
+            data: resources
+        });
+
+    } catch (error) {
+        console.error('Get resources error:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Error obteniendo recursos',
+            error: error.message
+        });
+    }
+};
+
+const createResource = async (req, res) => {
+    try {
+        const userId = req.user.user_id;
+        const { title, type, link, duration_minutes } = req.body;
+
+        if (!title || !type || !link) {
+            return res.status(400).json({
+                success: false,
+                message: 'Título, tipo y enlace son requeridos'
+            });
+        }
+
+        const [result] = await pool.execute(
+            'INSERT INTO resources (user_id, title, type, link, duration_minutes) VALUES (?, ?, ?, ?, ?)',
+            [userId, title, type, link, duration_minutes]
+        );
+
+        const [newResource] = await pool.execute(
+            'SELECT * FROM resources WHERE resource_id = ?',
+            [result.insertId]
+        );
+
+        res.status(201).json({
+            success: true,
+            message: 'Recurso guardado exitosamente',
+            data: newResource[0]
+        });
+
+    } catch (error) {
+        console.error('Create resource error:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Error guardando recurso',
+            error: error.message
+        });
+    }
+};
+
+const updateResource = async (req, res) => {
+    try {
+        const userId = req.user.user_id;
+        const { resourceId } = req.params;
+        const { title, type, link, duration_minutes } = req.body;
+
+        // Verificar que el recurso pertenece al usuario
+        const [existingResource] = await pool.execute(
+            'SELECT * FROM resources WHERE resource_id = ? AND user_id = ?',
+            [resourceId, userId]
+        );
+
+        if (existingResource.length === 0) {
+            return res.status(404).json({
+                success: false,
+                message: 'Recurso no encontrado'
+            });
+        }
+
+        await pool.execute(
+            'UPDATE resources SET title = ?, type = ?, link = ?, duration_minutes = ? WHERE resource_id = ?',
+            [title, type, link, duration_minutes, resourceId]
+        );
+
+        const [updatedResource] = await pool.execute(
+            'SELECT * FROM resources WHERE resource_id = ?',
+            [resourceId]
+        );
+
+        res.json({
+            success: true,
+            message: 'Recurso actualizado exitosamente',
+            data: updatedResource[0]
+        });
+
+    } catch (error) {
+        console.error('Update resource error:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Error actualizando recurso',
+            error: error.message
+        });
+    }
+};
+
+const deleteResource = async (req, res) => {
+    try {
+        const userId = req.user.user_id;
+        const { resourceId } = req.params;
+
+        // Verificar que el recurso pertenece al usuario
+        const [existingResource] = await pool.execute(
+            'SELECT * FROM resources WHERE resource_id = ? AND user_id = ?',
+            [resourceId, userId]
+        );
+
+        if (existingResource.length === 0) {
+            return res.status(404).json({
+                success: false,
+                message: 'Recurso no encontrado'
+            });
+        }
+
+        await pool.execute(
+            'DELETE FROM resources WHERE resource_id = ?',
+            [resourceId]
+        );
+
+        res.json({
+            success: true,
+            message: 'Recurso eliminado exitosamente'
+        });
+
+    } catch (error) {
+        console.error('Delete resource error:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Error eliminando recurso',
+            error: error.message
+        });
+    }
 };
 
 module.exports = {
-  getUserInterests,
-  updateUserInterest,
-  getUserNotes,
-  createNote,
-  updateNote,
-  deleteNote,
-  getUserResources,
-  saveResource,
-  getUserStats
+    getUserStats,
+    getUserInterests,
+    getNotes,
+    createNote,
+    updateNote,
+    deleteNote,
+    getResources,
+    createResource,
+    updateResource,
+    deleteResource
 };

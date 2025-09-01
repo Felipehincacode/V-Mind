@@ -8,12 +8,16 @@
     "build": "vite build",
     "preview": "vite preview",
     "lint": "eslint . --ext .js,.html",
-    "format": "prettier --write ."
+    "format": "prettier --write .",
+    "start": "vite --host",
+    "backend": "cd backend && npm run dev",
+    "full-dev": "concurrently \"npm run backend\" \"npm run dev\""
   },
   "devDependencies": {
     "vite": "^5.0.0",
     "eslint": "^8.0.0",
-    "prettier": "^3.0.0"
+    "prettier": "^3.0.0",
+    "concurrently": "^8.2.2"
   },
   "keywords": [
     "learning",

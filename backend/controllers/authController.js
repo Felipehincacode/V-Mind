@@ -9,22 +9,31 @@ const generateToken = (userId) => {
 
 const register = async (req, res) => {
   try {
-    const { user_name, email, phone, passwords, objetive, preferred_language } = req.body;
+    const { user_name, email, username, phone, passwords, objetive, preferred_language } = req.body;
 
     // Validate required fields
-    if (!user_name || !email || !passwords) {
+    if (!user_name || !email || !username || !passwords) {
       return res.status(400).json({
         success: false,
-        message: 'Name, email and password are required'
+        message: 'Name, email, username and password are required'
       });
     }
 
-    // Check if user already exists
-    const existingUser = await User.findByEmail(email);
-    if (existingUser) {
+    // Check if user already exists by email
+    const existingUserByEmail = await User.findByEmail(email);
+    if (existingUserByEmail) {
       return res.status(400).json({
         success: false,
         message: 'User with this email already exists'
+      });
+    }
+
+    // Check if user already exists by username
+    const existingUserByUsername = await User.findByUsername(username);
+    if (existingUserByUsername) {
+      return res.status(400).json({
+        success: false,
+        message: 'Username already taken'
       });
     }
 
@@ -32,6 +41,7 @@ const register = async (req, res) => {
     const userData = {
       user_name,
       email,
+      username,
       phone,
       passwords,
       objetive,

@@ -8,7 +8,7 @@ class RegisterWizard {
             // Datos básicos de registro
             username: '',
             email: '',
-            password: '',
+            passwords: '',
             name: '',
             // Datos del wizard inmersivo
             intereses: [],
@@ -448,7 +448,7 @@ class RegisterWizard {
         });
 
         passwordInput.addEventListener('input', (e) => {
-            this.wizardData.password = e.target.value;
+            this.wizardData.passwords = e.target.value;
         });
     }
 
@@ -606,7 +606,7 @@ class RegisterWizard {
                 return this.wizardData.name.trim().length > 0 && 
                        this.wizardData.email.trim().length > 0 && 
                        this.wizardData.username.trim().length > 0 && 
-                       this.wizardData.password.length >= 6;
+                       this.wizardData.passwords.length >= 6;
             case 3: return this.wizardData.intereses.length > 0;
             case 4: return true; // Level is always valid
             case 5: return this.wizardData.objetivo.trim().length > 0;
@@ -653,7 +653,8 @@ class RegisterWizard {
                 body: JSON.stringify({
                     user_name: this.wizardData.name,
                     email: this.wizardData.email,
-                    passwords: this.wizardData.password,
+                    username: this.wizardData.username,
+                    passwords: this.wizardData.passwords,
                     objetive: this.wizardData.objetivo,
                     preferred_language: 'es'
                 })
@@ -715,7 +716,7 @@ class RegisterWizard {
                     this.showFieldError('emailInput', message);
                 } else if (field === 'username') {
                     this.showFieldError('usernameInput', message);
-                } else if (field === 'password') {
+                } else if (field === 'passwords') {
                     this.showFieldError('passwordInput', message);
                 }
             }

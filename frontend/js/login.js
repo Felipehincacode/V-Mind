@@ -1,4 +1,7 @@
-// ===== FUNCIONALIDAD DE LOGIN =====
+// ===== FUNCIONALIDAD DE LOGIN REFACTORIZADA =====
+
+import { apiService, ApiError } from './services/api.js';
+import { getConfig } from './config.js';
 
 class LoginManager {
     constructor() {
@@ -194,19 +197,11 @@ class LoginManager {
 
     async performLogin(formData) {
         try {
-            // Usar la API real del backend
-            const response = await fetch('http://localhost:3000/api/auth/login', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    email: formData.username,
-                    passwords: formData.password
-                })
+            // Usar el nuevo servicio de API
+            const result = await apiService.login({
+                email: formData.username,
+                passwords: formData.password
             });
-
-            const result = await response.json();
             
             if (result.success) {
                 return {
@@ -232,6 +227,15 @@ class LoginManager {
             
         } catch (error) {
             console.error('Error durante el login:', error);
+            
+            if (error instanceof ApiError) {
+                return {
+                    success: false,
+                    message: error.message,
+                    status: error.status
+                };
+            }
+            
             return {
                 success: false,
                 message: 'Error de conexión. Verifica que el backend esté ejecutándose.'
@@ -268,13 +272,13 @@ class LoginManager {
     }
 
     handleLoginSuccess(result) {
-        // Guardar token y datos del usuario
-        localStorage.setItem('authToken', result.token);
-        localStorage.setItem('userData', JSON.stringify(result.user));
+        // Guardar token y datos del usuario usando la configuración centralizada
+        apiService.setAuthToken(result.token);
+        localStorage.setItem(getConfig('AUTH.USER_DATA_KEY'), JSON.stringify(result.user));
         
         // Guardar refresh token si existe
         if (result.refreshToken) {
-            localStorage.setItem('refreshToken', result.refreshToken);
+            localStorage.setItem(getConfig('AUTH.REFRESH_TOKEN_KEY'), result.refreshToken);
         }
         
         // Guardar timestamp del login

@@ -1,7 +1,7 @@
 {
-  "name": "crisalida-backend",
+  "name": "vmind-backend",
   "version": "1.0.0",
-  "description": "Backend API for Crisalida learning platform",
+  "description": "Backend API for V-Mind learning platform",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",

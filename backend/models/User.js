@@ -16,11 +16,11 @@ class User {
       userId,
       userData.user_name,
       userData.email,
-      userData.phone,
+      userData.phone || null,
       hashedPassword,
       userData.rol || 'user',
-      userData.objetive,
-      userData.preferred_language
+      userData.objetive || null,
+      userData.preferred_language || 'es'
     ];
 
     try {
@@ -39,6 +39,17 @@ class User {
       return rows[0];
     } catch (error) {
       throw new Error(`Error finding user by email: ${error.message}`);
+    }
+  }
+
+  static async findByUsername(username) {
+    const query = 'SELECT * FROM users WHERE username = ?';
+    
+    try {
+      const [rows] = await pool.execute(query, [username]);
+      return rows[0];
+    } catch (error) {
+      throw new Error(`Error finding user by username: ${error.message}`);
     }
   }
 
@@ -85,6 +96,11 @@ class User {
   }
 
   static async comparePassword(password, hashedPassword) {
+    // Temporalmente permitir comparación directa para contraseñas en texto plano
+    // TODO: Migrar todas las contraseñas a hash en producción
+    if (hashedPassword === password) {
+      return true;
+    }
     return await bcrypt.compare(password, hashedPassword);
   }
 }

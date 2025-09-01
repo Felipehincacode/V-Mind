@@ -1,36 +1,40 @@
 const express = require('express');
 const router = express.Router();
-const {
-  getUserInterests,
-  updateUserInterest,
-  getUserNotes,
-  createNote,
-  updateNote,
-  deleteNote,
-  getUserResources,
-  saveResource,
-  getUserStats
-} = require('../controllers/userController');
 const { auth } = require('../middleware/auth');
 
-// All routes require authentication
+// Importar controladores (los crearemos después)
+const { 
+    getUserStats, 
+    getUserInterests, 
+    getNotes, 
+    createNote, 
+    updateNote, 
+    deleteNote,
+    getResources,
+    createResource,
+    updateResource,
+    deleteResource
+} = require('../controllers/userController');
+
+// Rutas protegidas (requieren autenticación)
 router.use(auth);
 
-// Interests
-router.get('/interests', getUserInterests);
-router.put('/interests', updateUserInterest);
+// Estadísticas del usuario
+router.get('/stats', getUserStats);
 
-// Notes
-router.get('/notes', getUserNotes);
+// Intereses del usuario
+router.get('/interests', getUserInterests);
+
+// Notas del usuario
+router.get('/notes', getNotes);
 router.post('/notes', createNote);
 router.put('/notes/:noteId', updateNote);
 router.delete('/notes/:noteId', deleteNote);
 
-// Resources
-router.get('/resources', getUserResources);
-router.post('/resources', saveResource);
-
-// Stats
-router.get('/stats', getUserStats);
+// Recursos del usuario
+router.get('/resources', getResources);
+router.post('/resources', createResource);
+router.put('/resources/:resourceId', updateResource);
+router.delete('/resources/:resourceId', deleteResource);
 
 module.exports = router;

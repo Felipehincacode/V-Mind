@@ -89,363 +89,145 @@
                     el enfoque y la retención del conocimiento. Vmind te ayuda a hackear tu propio cerebro.
                 </p>
                 
-                                 <div class="roadmap-container">
-                     <div class="central-planet" id="pythonPlanet">
-                         <div class="planet-glow"></div>
-                         <div class="planet-content">
-                             <img src="assets/ui_elements/planeta1.png" alt="Planeta Python" class="planet-image">
-                             <span class="planet-text">Python</span>
-                         </div>
-                     </div>
-                     
-                     <div class="side-planet left-planet" id="databasePlanet">
-                         <div class="planet-glow"></div>
-                         <div class="planet-content">
-                             <img src="assets/ui_elements/planeta2.png" alt="Planeta Bases de Datos" class="planet-image">
-                             <span class="planet-text">Bases de Datos</span>
-                         </div>
-                     </div>
-                     
-                     <div class="side-planet right-planet" id="tailwindPlanet">
-                         <div class="planet-glow"></div>
-                         <div class="planet-content">
-                             <img src="assets/ui_elements/planeta3.png" alt="Planeta Tailwind" class="planet-image">
-                             <span class="planet-text">Tailwind</span>
-                         </div>
-                     </div>
-                 </div>
-
-                <!-- Modal de Mapa Conceptual Python -->
-                <div class="concept-map-modal" id="pythonModal">
-                    <div class="modal-backdrop"></div>
-                    <div class="modal-content">
-                        <div class="modal-header">
-                            <h3>Mapa Conceptual: Python</h3>
-                            <button class="modal-close" id="closePythonModal">×</button>
-                        </div>
-                        <div class="concept-map-container">
-                            <!-- Líneas de conexión -->
-                            <svg class="connection-lines" width="100%" height="100%">
-                                <defs>
-                                    <linearGradient id="lineGradient" x1="0%" y1="0%" x2="100%" y2="0%">
-                                        <stop offset="0%" style="stop-color:#5D3FD3;stop-opacity:0.6" />
-                                        <stop offset="50%" style="stop-color:#FF6EC7;stop-opacity:0.8" />
-                                        <stop offset="100%" style="stop-color:#3AB0FF;stop-opacity:0.6" />
-                                    </linearGradient>
-                                </defs>
-                                <!-- Las líneas se dibujarán dinámicamente con JavaScript -->
-                            </svg>
-                            
-                            <!-- Nodos del mapa conceptual -->
-                            <div class="concept-node" data-topic="fundamentals" style="top: 20%; left: 50%;">
-                                <div class="node-planet">
-                                    <img src="assets/ui_elements/planeta1.png" alt="Fundamentos" class="node-planet-image">
-                                </div>
-                                <div class="node-label">Fundamentos</div>
-                            </div>
-                            
-                            <div class="concept-node" data-topic="data-structures" style="top: 15%; left: 25%;">
-                                <div class="node-planet">
-                                    <img src="assets/ui_elements/planeta2.png" alt="Estructuras de Datos" class="node-planet-image">
-                                </div>
-                                <div class="node-label">Estructuras de Datos</div>
-                            </div>
-                            
-                            <div class="concept-node" data-topic="functions" style="top: 15%; left: 75%;">
-                                <div class="node-planet">
-                                    <img src="assets/ui_elements/planeta3.png" alt="Funciones" class="node-planet-image">
-                                </div>
-                                <div class="node-label">Funciones</div>
-                            </div>
-                            
-                            <div class="concept-node" data-topic="oop" style="top: 50%; left: 20%;">
-                                <div class="node-planet">
-                                    <img src="assets/ui_elements/planeta4.png" alt="POO" class="node-planet-image">
-                                </div>
-                                <div class="node-label">POO</div>
-                            </div>
-                            
-                            <div class="concept-node" data-topic="modules" style="top: 50%; left: 80%;">
-                                <div class="node-planet">
-                                    <img src="assets/ui_elements/planeta1.png" alt="Módulos" class="node-planet-image">
-                                </div>
-                                <div class="node-label">Módulos</div>
-                            </div>
-                            
-                            <div class="concept-node" data-topic="web" style="top: 80%; left: 30%;">
-                                <div class="node-planet">
-                                    <img src="assets/ui_elements/planeta2.png" alt="Web Development" class="node-planet-image">
-                                </div>
-                                <div class="node-label">Web Development</div>
-                            </div>
-                            
-                            <div class="concept-node" data-topic="data-science" style="top: 80%; left: 70%;">
-                                <div class="node-planet">
-                                    <img src="assets/ui_elements/planeta3.png" alt="Data Science" class="node-planet-image">
-                                </div>
-                                <div class="node-label">Data Science</div>
-                            </div>
-                            
-                            <div class="concept-node" data-topic="automation" style="top: 65%; left: 50%;">
-                                <div class="node-planet">
-                                    <img src="assets/ui_elements/planeta4.png" alt="Automation" class="node-planet-image">
-                                </div>
-                                <div class="node-label">Automation</div>
-                            </div>
-                        </div>
+                <div class="features-grid">
+                    <div class="feature-card">
+                        <div class="feature-icon">🎯</div>
+                        <h3>Objetivos Claros</h3>
+                        <p>Divide tu aprendizaje en pasos alcanzables y celebra cada victoria.</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">⭐</div>
+                        <h3>Sistema de Recompensas</h3>
+                        <p>Gana XP, desbloquea logros y mantén tu motivación alta.</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">📊</div>
+                        <h3>Progreso Visual</h3>
+                        <p>Ve tu crecimiento con métricas claras y gráficos motivadores.</p>
                     </div>
                 </div>
             </div>
         </div>
     </section>
 
-    <!-- Sección 4: Un Framework para tu Mente -->
-    <section id="gamification" class="section gamification-section">
+    <!-- Sección 4: Cómo Funciona -->
+    <section id="how-it-works" class="section how-it-works-section">
         <div class="container">
-            <div class="gamification-content">
-                <h2 class="section-title">Vmind te da el <span class="highlight">mapa y la nave</span>.</h2>
-                <p class="section-text">
-                    No te ahogamos con recursos infinitos. Te damos el <strong>framework holístico</strong> para que logres cualquier meta de aprendizaje que te propongas. 
-                    Cada paso que das es un nuevo planeta que exploras y un nuevo logro que conquistas.
-                </p>
-                
-                                 <div class="progress-container">
-                     <div class="rocket-journey fade-in-up">
-                         <div class="journey-track">
-                             <div class="rocket-progress" id="rocketProgress">
-                                 <img src="assets/ui_elements/elemento5.png" alt="Cohete" class="rocket-image">
-                                 <div class="progress-number" id="progressNumber">0%</div>
-                             </div>
-                         </div>
-                     </div>
-                 </div>
+            <div class="how-it-works-content">
+                <h2 class="section-title">Tu Viaje de Aprendizaje</h2>
+                <div class="steps-container">
+                    <div class="step">
+                        <div class="step-number">1</div>
+                        <div class="step-content">
+                            <h3>Define tu Meta</h3>
+                            <p>Elige qué quieres aprender y establece objetivos realistas.</p>
+                        </div>
+                    </div>
+                    <div class="step">
+                        <div class="step-number">2</div>
+                        <div class="step-content">
+                            <h3>Sigue tu Roadmap</h3>
+                            <p>Navega por un camino estructurado diseñado por expertos.</p>
+                        </div>
+                    </div>
+                    <div class="step">
+                        <div class="step-number">3</div>
+                        <div class="step-content">
+                            <h3>Completa Tareas</h3>
+                            <p>Practica con ejercicios interactivos y proyectos reales.</p>
+                        </div>
+                    </div>
+                    <div class="step">
+                        <div class="step-number">4</div>
+                        <div class="step-content">
+                            <h3>Celebra tu Progreso</h3>
+                            <p>Gana recompensas y desbloquea nuevos niveles.</p>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </section>
 
-    <!-- Sección 5: Nunca Viajes Solo -->
-    <section id="social" class="section social-section">
+    <!-- Sección 5: Tecnologías y Lenguajes -->
+    <section id="technologies" class="section technologies-section">
         <div class="container">
-            <div class="social-content">
-                <h2 class="section-title">Tu Viaje, en <span class="highlight">Comunidad</span>.</h2>
-                <p class="section-text">
-                    Sé parte de una flota de exploradores con tu misma visión. Inspira y mira cómo creces junto a una comunidad. 
-                    Las rachas y los leaderboards no son una competencia, son un impulso para mantener el motor encendido.
-                </p>
-                
-                <div class="community-stats">
-                    <div class="stat-item">
-                        <div class="stat-number">2,847</div>
-                        <div class="stat-label">Exploradores activos</div>
+            <div class="technologies-content">
+                <h2 class="section-title">Domina las Tecnologías del Futuro</h2>
+                <div class="tech-grid">
+                    <div class="tech-card">
+                        <div class="tech-icon">🐍</div>
+                        <h3>Python</h3>
+                        <p>Desde fundamentos hasta IA y machine learning.</p>
                     </div>
-                    <div class="stat-item">
-                        <div class="stat-number">156</div>
-                        <div class="stat-label">Racha promedio</div>
+                    <div class="tech-card">
+                        <div class="tech-icon">🌐</div>
+                        <h3>Desarrollo Web</h3>
+                        <p>HTML, CSS, JavaScript y frameworks modernos.</p>
                     </div>
-                    <div class="stat-item">
-                        <div class="stat-number">89%</div>
-                        <div class="stat-label">Tasa de éxito</div>
+                    <div class="tech-card">
+                        <div class="tech-icon">📱</div>
+                        <h3>Desarrollo Móvil</h3>
+                        <p>Apps nativas y multiplataforma.</p>
                     </div>
-                </div>
-                
-                <div class="leaderboard-container">
-                    <h3 class="leaderboard-title">🏆 Flota Galáctica</h3>
-                    <div class="leaderboard">
-                        <div class="leaderboard-item current-user">
-                            <span class="rank">#1</span>
-                            <span class="username">@tu_usuario</span>
-                            <span class="score">2,450 pts</span>
-                        </div>
-                        <div class="leaderboard-item">
-                            <span class="rank">#2</span>
-                            <span class="username">@explorador_pro</span>
-                            <span class="score">2,100 pts</span>
-                        </div>
-                        <div class="leaderboard-item">
-                            <span class="rank">#3</span>
-                            <span class="username">@conquistador</span>
-                            <span class="score">1,850 pts</span>
-                        </div>
+                    <div class="tech-card">
+                        <div class="tech-icon">🤖</div>
+                        <h3>Inteligencia Artificial</h3>
+                        <p>Machine learning, deep learning y NLP.</p>
                     </div>
                 </div>
             </div>
         </div>
     </section>
 
-    <!-- Sección 6: Tu Propósito te Espera -->
-    <section id="conclusion" class="section conclusion-section">
+    <!-- Sección 6: Call to Action -->
+    <section id="cta" class="section cta-section">
         <div class="container">
-            <div class="conclusion-content">
-                <h2 class="section-title">
-                    Este es el momento de <span class="highlight">despegar</span>.
-                </h2>
+            <div class="cta-content">
+                <h2 class="section-title">¿Listo para Transformar tu Aprendizaje?</h2>
                 <p class="section-text">
-                    Vmind te da el camino y la estructura para que logres tus objetivos. 
-                    El universo de posibilidades te espera.
+                    Únete a miles de estudiantes que ya están transformando su forma de aprender. 
+                    El futuro del aprendizaje está aquí.
                 </p>
-                
-                <button class="cta-button final" id="finalCtaBtn">
-                    <span class="button-text">¡Empieza tu aventura gratis!</span>
-                    <div class="button-glow"></div>
-                </button>
+                <div class="cta-buttons">
+                    <a href="register.html" class="cta-button primary">
+                        <span class="button-text">Comenzar Ahora</span>
+                        <div class="button-glow"></div>
+                    </a>
+                </div>
             </div>
         </div>
     </section>
 
-    <!-- Modal de Mapa Conceptual Bases de Datos -->
-    <div class="concept-map-modal" id="databaseModal">
-        <div class="modal-backdrop"></div>
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3>🌌 Mapa Conceptual: Bases de Datos</h3>
-                <button class="modal-close" id="closeDatabaseModal">×</button>
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3>Vmind</h3>
+                    <p>Transformando el aprendizaje a través de la gamificación y la IA.</p>
+                </div>
+                <div class="footer-section">
+                    <h4>Enlaces</h4>
+                    <ul>
+                        <li><a href="#intro">Inicio</a></li>
+                        <li><a href="#how-it-works">Cómo Funciona</a></li>
+                        <li><a href="login.html">Iniciar Sesión</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>Contacto</h4>
+                    <p>¿Tienes preguntas? Contáctanos.</p>
+                </div>
             </div>
-            <div class="concept-map-container">
-                <svg class="connection-lines" width="100%" height="100%">
-                    <defs>
-                        <linearGradient id="lineGradient" x1="0%" y1="0%" x2="100%" y2="0%">
-                            <stop offset="0%" style="stop-color:#3AB0FF;stop-opacity:1" />
-                            <stop offset="100%" style="stop-color:#FF6EC7;stop-opacity:1" />
-                        </linearGradient>
-                    </defs>
-                </svg>
-                
-                <div class="concept-node" data-topic="fundamentals" style="top: 20%; left: 50%;">
-                    <div class="node-planet">
-                        <img src="assets/ui_elements/planeta1.png" alt="Fundamentos" class="node-planet-image">
-                    </div>
-                    <div class="node-label">Fundamentos DB</div>
-                </div>
-                
-                <div class="concept-node" data-topic="sql" style="top: 15%; left: 25%;">
-                    <div class="node-planet">
-                        <img src="assets/ui_elements/planeta2.png" alt="SQL" class="node-planet-image">
-                    </div>
-                    <div class="node-label">SQL</div>
-                </div>
-                
-                <div class="concept-node" data-topic="nosql" style="top: 15%; left: 75%;">
-                    <div class="node-planet">
-                        <img src="assets/ui_elements/planeta3.png" alt="NoSQL" class="node-planet-image">
-                    </div>
-                    <div class="node-label">NoSQL</div>
-                </div>
-                
-                <div class="concept-node" data-topic="design" style="top: 50%; left: 20%;">
-                    <div class="node-planet">
-                        <img src="assets/ui_elements/planeta4.png" alt="Diseño" class="node-planet-image">
-                    </div>
-                    <div class="node-label">Diseño DB</div>
-                </div>
-                
-                <div class="concept-node" data-topic="optimization" style="top: 50%; left: 80%;">
-                    <div class="node-planet">
-                        <img src="assets/ui_elements/planeta1.png" alt="Optimización" class="node-planet-image">
-                    </div>
-                    <div class="node-label">Optimización</div>
-                </div>
-                
-                <div class="concept-node" data-topic="security" style="top: 80%; left: 30%;">
-                    <div class="node-planet">
-                        <img src="assets/ui_elements/planeta2.png" alt="Seguridad" class="node-planet-image">
-                    </div>
-                    <div class="node-label">Seguridad</div>
-                </div>
-                
-                <div class="concept-node" data-topic="backup" style="top: 80%; left: 70%;">
-                    <div class="node-planet">
-                        <img src="assets/ui_elements/planeta3.png" alt="Backup" class="node-planet-image">
-                    </div>
-                    <div class="node-label">Backup & Recovery</div>
-                </div>
-                
-                <div class="concept-node" data-topic="cloud" style="top: 65%; left: 50%;">
-                    <div class="node-planet">
-                        <img src="assets/ui_elements/planeta4.png" alt="Cloud" class="node-planet-image">
-                    </div>
-                    <div class="node-label">Cloud DB</div>
-                </div>
+            <div class="footer-bottom">
+                <p>&copy; 2024 Vmind. Todos los derechos reservados.</p>
             </div>
         </div>
-    </div>
+    </footer>
 
-    <!-- Modal de Mapa Conceptual Tailwind -->
-    <div class="concept-map-modal" id="tailwindModal">
-        <div class="modal-backdrop"></div>
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3>🌌 Mapa Conceptual: Tailwind CSS</h3>
-                <button class="modal-close" id="closeTailwindModal">×</button>
-            </div>
-            <div class="concept-map-container">
-                <svg class="connection-lines" width="100%" height="100%">
-                    <defs>
-                        <linearGradient id="lineGradient" x1="0%" y1="0%" x2="100%" y2="0%">
-                            <stop offset="0%" style="stop-color:#3AB0FF;stop-opacity:1" />
-                            <stop offset="100%" style="stop-color:#FF6EC7;stop-opacity:1" />
-                        </linearGradient>
-                    </defs>
-                </svg>
-                
-                <div class="concept-node" data-topic="fundamentals" style="top: 20%; left: 50%;">
-                    <div class="node-planet">
-                        <img src="assets/ui_elements/planeta1.png" alt="Fundamentos" class="node-planet-image">
-                    </div>
-                    <div class="node-label">Fundamentos</div>
-                </div>
-                
-                <div class="concept-node" data-topic="utilities" style="top: 15%; left: 25%;">
-                    <div class="node-planet">
-                        <img src="assets/ui_elements/planeta2.png" alt="Utilidades" class="node-planet-image">
-                    </div>
-                    <div class="node-label">Utilidades</div>
-                </div>
-                
-                <div class="concept-node" data-topic="layout" style="top: 15%; left: 75%;">
-                    <div class="node-planet">
-                        <img src="assets/ui_elements/planeta3.png" alt="Layout" class="node-planet-image">
-                    </div>
-                    <div class="node-label">Layout & Grid</div>
-                </div>
-                
-                <div class="concept-node" data-topic="components" style="top: 50%; left: 20%;">
-                    <div class="node-planet">
-                        <img src="assets/ui_elements/planeta4.png" alt="Componentes" class="node-planet-image">
-                    </div>
-                    <div class="node-label">Componentes</div>
-                </div>
-                
-                <div class="concept-node" data-topic="responsive" style="top: 50%; left: 80%;">
-                    <div class="node-planet">
-                        <img src="assets/ui_elements/planeta1.png" alt="Responsive" class="node-planet-image">
-                    </div>
-                    <div class="node-label">Responsive Design</div>
-                </div>
-                
-                <div class="concept-node" data-topic="customization" style="top: 80%; left: 30%;">
-                    <div class="node-planet">
-                        <img src="assets/ui_elements/planeta2.png" alt="Personalización" class="node-planet-image">
-                    </div>
-                    <div class="node-label">Personalización</div>
-                </div>
-                
-                <div class="concept-node" data-topic="plugins" style="top: 80%; left: 70%;">
-                    <div class="node-planet">
-                        <img src="assets/ui_elements/planeta3.png" alt="Plugins" class="node-planet-image">
-                    </div>
-                    <div class="node-label">Plugins</div>
-                </div>
-                
-                <div class="concept-node" data-topic="production" style="top: 65%; left: 50%;">
-                    <div class="node-planet">
-                        <img src="assets/ui_elements/planeta4.png" alt="Producción" class="node-planet-image">
-                    </div>
-                    <div class="node-label">Producción</div>
-                </div>
-            </div>
-        </div>
-    </div>
-
+    <!-- Scripts -->
     <script src="js/main.js"></script>
+    <script src="js/space-background.js"></script>
 </body>
 </html>

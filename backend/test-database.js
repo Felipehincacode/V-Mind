@@ -9,13 +9,13 @@ async function testDatabaseConnection() {
         console.log('✅ Conexión exitosa a MySQL');
         
         // Verificar que la base de datos existe
-        const [databases] = await connection.execute('SHOW DATABASES LIKE "v_mind"');
+        const [databases] = await connection.execute('SHOW DATABASES LIKE "vmind"');
         if (databases.length === 0) {
-            console.log('❌ La base de datos "v_mind" no existe');
+            console.log('❌ La base de datos "vmind" no existe');
             console.log('📝 Ejecuta el script SQL para crear la base de datos');
             return;
         }
-        console.log('✅ Base de datos "v_mind" encontrada');
+        console.log('✅ Base de datos "vmind" encontrada');
         
         // Verificar tablas
         const [tables] = await connection.execute('SHOW TABLES');
@@ -64,7 +64,7 @@ async function testDatabaseConnection() {
         console.log('\n🔧 Posibles soluciones:');
         console.log('   1. Verifica que MySQL esté ejecutándose');
         console.log('   2. Verifica las credenciales en el archivo .env');
-        console.log('   3. Asegúrate de que la base de datos "v_mind" exista');
+        console.log('   3. Asegúrate de que la base de datos "vmind" exista');
         console.log('   4. Ejecuta el script SQL para crear las tablas');
     }
 }

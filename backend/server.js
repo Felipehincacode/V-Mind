@@ -43,7 +43,7 @@ app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 app.get('/health', (req, res) => {
   res.json({
     success: true,
-    message: 'Crisalida API is running',
+    message: 'V-Mind API is running',
     timestamp: new Date().toISOString(),
     environment: process.env.NODE_ENV || 'development'
   });
