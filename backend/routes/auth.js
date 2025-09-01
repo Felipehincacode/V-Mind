@@ -1,16 +1,13 @@
 const express = require('express');
 const router = express.Router();
-const { register, login, getProfile, updateProfile, refreshToken, logout } = require('../controllers/authController');
+const { register, login, getProfile } = require('../controllers/authController');
 const { auth } = require('../middleware/auth');
 
-// Public routes
+// Rutas públicas
 router.post('/register', register);
 router.post('/login', login);
-router.post('/refresh', refreshToken);
-router.post('/logout', logout);
 
-// Protected routes
+// Rutas protegidas
 router.get('/profile', auth, getProfile);
-router.put('/profile', auth, updateProfile);
 
 module.exports = router;

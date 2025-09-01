@@ -3,12 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Registro - Vmind | Tu Viaje de Aprendizaje Comienza Aquí</title>
+    <title>Registro - Vmind</title>
     
     <!-- Estilos modulares -->
     <link rel="stylesheet" href="css/base.css">
     <link rel="stylesheet" href="css/space-background.css">
-    <link rel="stylesheet" href="css/login.css">
+    <link rel="stylesheet" href="css/register-wizard.css">
     
     <!-- Fuentes -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -32,245 +32,36 @@
         </div>
     </nav>
 
-    <!-- Contenedor principal del registro -->
-    <div class="login-container">
-        <div class="login-card glass-effect">
-            <!-- Header del registro -->
-            <div class="login-header">
-                <h1 class="login-logo">Vmind</h1>
-                <p class="login-subtitle">Únete a la aventura de aprendizaje</p>
+    <!-- Contenedor principal del wizard -->
+    <div class="wizard-container">
+        <div class="wizard-card glass-effect">
+            <!-- Barra de progreso -->
+            <div class="wizard-progress">
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progressFill"></div>
+                </div>
+                <p class="step-indicator" id="stepIndicator">Paso 1 de 2</p>
             </div>
 
-            <!-- Formulario de registro -->
-            <form class="login-form" id="registerForm">
-                <!-- Campo de nombre -->
-                <div class="form-group" id="nameGroup">
-                    <label for="name" class="form-label">Nombre completo</label>
-                    <input 
-                        type="text" 
-                        id="name" 
-                        name="name" 
-                        class="login-input"
-                        placeholder="Tu nombre completo"
-                        required
-                        autocomplete="name"
-                    >
-                    <span class="error-message" id="nameError">Este campo es requerido</span>
-                </div>
+            <!-- Contenido del wizard -->
+            <div class="wizard-content" id="wizardContent">
+                <!-- El contenido se renderiza dinámicamente -->
+            </div>
 
-                <!-- Campo de email -->
-                <div class="form-group" id="emailGroup">
-                    <label for="email" class="form-label">Correo electrónico</label>
-                    <input 
-                        type="email" 
-                        id="email" 
-                        name="email" 
-                        class="login-input"
-                        placeholder="tu@email.com"
-                        required
-                        autocomplete="email"
-                    >
-                    <span class="error-message" id="emailError">Este campo es requerido</span>
-                </div>
-
-                <!-- Campo de contraseña -->
-                <div class="form-group" id="passwordGroup">
-                    <label for="password" class="form-label">Contraseña</label>
-                    <input 
-                        type="password" 
-                        id="password" 
-                        name="password" 
-                        class="login-input"
-                        placeholder="Mínimo 8 caracteres"
-                        required
-                        autocomplete="new-password"
-                    >
-                    <span class="error-message" id="passwordError">Este campo es requerido</span>
-                </div>
-
-                <!-- Campo de edad -->
-                <div class="form-group" id="ageGroup">
-                    <label for="age" class="form-label">Edad</label>
-                    <input 
-                        type="number" 
-                        id="age" 
-                        name="age" 
-                        class="login-input"
-                        placeholder="Tu edad"
-                        min="13"
-                        max="120"
-                        required
-                    >
-                    <span class="error-message" id="ageError">Este campo es requerido</span>
-                </div>
-
-                <!-- Botón de registro -->
-                <button type="submit" class="login-button glow-effect" id="registerButton">
-                    <span class="button-text">Crear cuenta</span>
+            <!-- Navegación del wizard -->
+            <div class="wizard-navigation" id="wizardNavigation">
+                <button class="wizard-nav-button back" id="backButton" style="display: none;">
+                    <span>← Atrás</span>
                 </button>
-            </form>
-
-            <!-- Footer con enlaces adicionales -->
-            <div class="login-footer">
-                <div class="login-divider">
-                    <span>o</span>
-                </div>
-                <p>
-                    ¿Ya tienes una cuenta? 
-                    <a href="login.html" class="login-link" id="loginLink">Inicia sesión aquí</a>
-                </p>
+                <button class="wizard-nav-button next" id="nextButton">
+                    <span>Continuar</span>
+                </button>
             </div>
         </div>
     </div>
 
-    <!-- Scripts modulares -->
-    <script src="js/test-users.js"></script>
+    <!-- Scripts SIMPLES - Solo el register-wizard.js que creamos -->
     <script src="js/login-space-warp.js"></script>
-    <script src="js/api-config.js"></script>
-    <script>
-        // Validación y envío del formulario de registro
-        document.getElementById('registerForm').addEventListener('submit', async function(e) {
-            e.preventDefault();
-            
-            // Obtener valores del formulario
-            const formData = {
-                name: document.getElementById('name').value.trim(),
-                email: document.getElementById('email').value.trim(),
-                password: document.getElementById('password').value,
-                age: parseInt(document.getElementById('age').value)
-            };
-
-            // Validaciones
-            let isValid = true;
-            
-            // Limpiar errores previos
-            document.querySelectorAll('.form-group').forEach(group => {
-                group.classList.remove('error');
-            });
-            
-            // Validar nombre
-            if (formData.name.length < 2) {
-                showError('nameGroup', 'nameError', 'El nombre debe tener al menos 2 caracteres');
-                isValid = false;
-            }
-            
-            // Validar email
-            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-            if (!emailRegex.test(formData.email)) {
-                showError('emailGroup', 'emailError', 'Ingresa un correo electrónico válido');
-                isValid = false;
-            }
-            
-            // Validar contraseña
-            if (formData.password.length < 8) {
-                showError('passwordGroup', 'passwordError', 'La contraseña debe tener al menos 8 caracteres');
-                isValid = false;
-            }
-            
-            // Validar edad
-            if (formData.age < 13 || formData.age > 120) {
-                showError('ageGroup', 'ageError', 'La edad debe estar entre 13 y 120 años');
-                isValid = false;
-            }
-            
-            if (!isValid) return;
-            
-            // Mostrar estado de carga
-            const submitButton = document.getElementById('registerButton');
-            const originalText = submitButton.querySelector('.button-text').textContent;
-            submitButton.classList.add('loading');
-            submitButton.disabled = true;
-            
-            try {
-                // Verificar si el usuario ya existe
-                if (TestUsers.userExists(formData.email, formData.email)) {
-                    showError('emailGroup', 'emailError', 'Este correo electrónico ya está registrado');
-                    return;
-                }
-                
-                // Crear el nuevo usuario
-                const newUser = TestUsers.addUser({
-                    username: formData.email.split('@')[0], // Usar parte del email como username
-                    email: formData.email,
-                    password: formData.password,
-                    name: formData.name,
-                    age: formData.age
-                });
-                
-                console.log('Usuario registrado exitosamente:', newUser);
-                
-                // Mostrar mensaje de éxito
-                showSuccess('¡Cuenta creada exitosamente! Redirigiendo al login...');
-                
-                // Redirigir después de 2 segundos
-                setTimeout(() => {
-                    window.location.href = 'login.html';
-                }, 2000);
-                
-            } catch (error) {
-                console.error('Error en el registro:', error);
-                showError('emailGroup', 'emailError', 'Error al crear la cuenta. Intenta nuevamente.');
-                
-                // Restaurar botón
-                submitButton.classList.remove('loading');
-                submitButton.disabled = false;
-            }
-        });
-        
-        function showError(groupId, errorId, message) {
-            const group = document.getElementById(groupId);
-            const errorElement = document.getElementById(errorId);
-            
-            group.classList.add('error');
-            errorElement.textContent = message;
-        }
-        
-        // Función para mostrar mensajes de éxito
-        function showSuccess(message) {
-            // Crear un toast de éxito
-            const toast = document.createElement('div');
-            toast.className = 'success-toast';
-            toast.textContent = message;
-            toast.style.cssText = `
-                position: fixed;
-                top: 20px;
-                right: 20px;
-                background: #10b981;
-                color: white;
-                padding: 1rem 1.5rem;
-                border-radius: 8px;
-                z-index: 10000;
-                animation: slideIn 0.3s ease;
-            `;
-            
-            document.body.appendChild(toast);
-            
-            // Remover después de 3 segundos
-            setTimeout(() => {
-                toast.remove();
-            }, 3000);
-        }
-        
-        // Efectos de hover en los inputs (igual que en login)
-        document.querySelectorAll('.login-input').forEach(input => {
-            input.addEventListener('focus', function() {
-                this.parentElement.style.transform = 'scale(1.02)';
-            });
-            
-            input.addEventListener('blur', function() {
-                this.parentElement.style.transform = 'scale(1)';
-            });
-        });
-        
-        // Agregar estilos para la animación
-        const style = document.createElement('style');
-        style.textContent = `
-            @keyframes slideIn {
-                from { transform: translateX(100%); opacity: 0; }
-                to { transform: translateX(0); opacity: 1; }
-            }
-        `;
-        document.head.appendChild(style);
-    </script>
+    <script src="js/register-wizard.js"></script>
 </body>
 </html>
